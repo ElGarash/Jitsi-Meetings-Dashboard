@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import flask
 from flask import Flask, request, jsonify, abort, render_template
 from flask_cors import CORS
 from flask_migrate import Migrate
@@ -17,6 +18,14 @@ def render_meeting():
     return render_template("index.html")
 
 
+@app.route("/dashboard")
+def get_dashboard():
+    page = request.args.get("page", 1)
+    limit = request.args.get("limit", 10)
+    meetings = Meeting.query.paginate(page, limit, False).items
+    return jsonify({"meetings": [meeting.format() for meeting in meetings]})
+
+
 @app.route("/dashboard", methods=["POST"])
 def get_participants_info():
     request_body = request.json
@@ -25,4 +34,4 @@ def get_participants_info():
     participants = request_body.get("participants", None)
     for participant in participants:
         Participant(name=participant, meeting_date=meeting_date).insert()
-    return None
+    return flask.Response(status=201)

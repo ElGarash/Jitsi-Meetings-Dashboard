@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 database_filename = "database.db"
 project_dir = os.path.dirname(os.path.abspath(__file__))
-database_path = "sqlite:///{}".format(os.path.join(project_dir, database_filename))
+database_path = f"sqlite:///{os.path.join(project_dir, database_filename)}"
 
 db = SQLAlchemy()
 
@@ -24,9 +24,17 @@ def db_drop_and_create_all():
 class Meeting(db.Model):
     __tablename__ = "meeting"
     date = db.Column(db.DateTime, nullable=False, primary_key=True)
-    link = db.Column(db.String(500))
+    link = db.Column(db.String(500), server_default="", default="")
     participants = db.relationship("Participant", backref="meeting")
     labels = db.relationship("Label", backref="meeting")
+
+    def format(self):
+        return {
+            "date": self.date,
+            "link": self.link,
+            "participants": [participant.name for participant in self.participants],
+            "labels": [label.name for label in self.labels],
+        }
 
     def insert(self):
         db.session.add(self)
