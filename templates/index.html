@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Meeting</title>
+    <script src='https://meet.jit.si/external_api.js'></script>
+</head>
+<body>
+<div id="meet" class="margin:auto; text-align:center;"></div>
+<script>
+    const domain = 'meet.jit.si';
+    const options = {
+        roomName: "Noorsmeeting/TestingThisMeeting",
+        width: 700,
+        height: 700,
+        parentNode: document.querySelector('#meet'),
+        userInfo: {
+            email: 'email@jitsiexamplemail.com',
+            displayName: 'John Doe'
+        },
+        SHOW_POWERED_BY: false,
+        SHOW_PROMOTIONAL_CLOSE_PAGE: false,
+    };
+    const api = new JitsiMeetExternalAPI(domain, options);
+</script>
+</body>
+
+</html>
