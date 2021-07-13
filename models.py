@@ -21,9 +21,57 @@ def db_drop_and_create_all():
     db.create_all()
 
 
+class Meeting(db.Model):
+    __tablename__ = "meeting"
+    id = db.Column(db.Integer().with_variant(db.Integer, "sqlite"), primary_key=True)
+    date = db.Column(db.DateTime, nullable=False)
+    link = db.Column(db.String(500), nullable=False)
+    participants = db.relationship("Participant", backref="meeting")
+    labels = db.relationship("Label", backref="meeting")
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+
 class Participant(db.Model):
+    __tablename__ = "participant"
     id = db.Column(db.Integer().with_variant(db.Integer, "sqlite"), primary_key=True)
     name = db.Column(db.String(80), nullable=False)
+    meeting_id = db.Column(
+        db.Integer().with_variant(db.Integer, "sqlite"),
+        db.ForeignKey("meeting.id"),
+        nullable=False,
+    )
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+
+class Label(db.Model):
+    __tablename__ = "label"
+    id = db.Column(db.Integer().with_variant(db.Integer, "sqlite"), primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
+    meeting_id = db.Column(
+        db.Integer().with_variant(db.Integer, "sqlite"),
+        db.ForeignKey("meeting.id"),
+        nullable=False,
+    )
 
     def insert(self):
         db.session.add(self)
