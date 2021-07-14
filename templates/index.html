@@ -14,12 +14,15 @@
         width: 700,
         height: 700,
         parentNode: document.querySelector('#meet'),
-        userInfo: {
-            email: 'email@jitsiexamplemail.com',
-            displayName: 'John Doe'
+        configOverwrite: {
+            startWithAudioMuted: false,
+            startWithVideoMuted: true,
+            requireDisplayName: true,
         },
-        SHOW_POWERED_BY: false,
-        SHOW_PROMOTIONAL_CLOSE_PAGE: false,
+        interfaceConfigOverwrite:
+            {
+                SHOW_CHROME_EXTENSION_BANNER: false,
+            }
     };
     const api = new JitsiMeetExternalAPI(domain, options);
 </script>

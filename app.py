@@ -1,7 +1,7 @@
 from datetime import datetime
 
-import flask
-from flask import Flask, request, jsonify, abort, render_template
+
+from flask import Flask, request, jsonify, abort, render_template, Response
 from flask_cors import CORS
 from flask_migrate import Migrate
 
@@ -34,4 +34,4 @@ def get_participants_info():
     participants = request_body.get("participants", None)
     for participant in participants:
         Participant(name=participant, meeting_date=meeting_date).insert()
-    return flask.Response(status=201)
+    return Response(status=201)
