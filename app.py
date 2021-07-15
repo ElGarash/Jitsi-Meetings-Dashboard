@@ -1,6 +1,5 @@
 from datetime import datetime
 
-
 from flask import Flask, request, jsonify, abort, render_template, Response
 from flask_cors import CORS
 from flask_migrate import Migrate
@@ -9,8 +8,18 @@ from models import setup_db, db, Participant, Meeting, Label
 
 app = Flask(__name__)
 setup_db(app)
-CORS(app)
 migrate = Migrate(app, db)
+CORS(app)
+
+
+# Request CORS Headers
+@app.after_request
+def after_request(response):
+    allowed_headers = "Content-Type,Authorization,true"
+    response.headers.add("Access-Control-Allow-Headers", allowed_headers)
+    allowed_methods = "GET,PUT,POST,DELETE,OPTIONS"
+    response.headers.add("Access-Control-Allow-Methods", allowed_methods)
+    return response
 
 
 @app.route("/")
