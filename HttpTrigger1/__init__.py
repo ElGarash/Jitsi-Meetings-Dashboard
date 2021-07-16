@@ -2,7 +2,7 @@ import logging
 import azure.functions as func
 from datetime import datetime
 
-from .models import Label, Participant, Meeting, create_tables
+from .gpages.models import Label, Participant, Meeting, create_tables
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
