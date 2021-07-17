@@ -5,14 +5,14 @@ import azure.functions as func
 from datetime import datetime
 
 
-from .gpages.models import Label, Participant, Meeting, create_tables
+from .models import Label, Participant, Meeting, create_tables
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("Python HTTP trigger function processed a request.")
     request_body = req.get_json()
+    subprocess.run("git clone -b gh-pages --single-branch https://github.com/ElGarash/Jitsi-Meetings-Dashboard HttpTrigger1/gpages")
     os.chdir(".\\HttpTrigger1\\gpages")
-    subprocess.run("git pull")
     insert_into_db(request_body)
     subprocess.run(f'git commit -am "{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}"')
     ACCESS_TOKEN = os.environ["GITHUB_ACCESS_TOKEN"]
