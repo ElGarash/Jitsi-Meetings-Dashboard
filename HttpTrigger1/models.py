@@ -1,13 +1,14 @@
-import os
+from pathlib import Path
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
-database_location = "gpages/database.db"
-project_dir = os.path.dirname(os.path.abspath(__file__))
-database_path = f"sqlite:///{os.path.join(project_dir, database_location)}"
+# Function execution context is the root directory, thus I have to join HttpTrigger1 as well.
+database_directory = Path.cwd().joinpath("HttpTrigger1").joinpath("gpages")
+engine_path = f"sqlite:///{database_directory.joinpath('database.db')}"
 
-engine = create_engine(database_path)
+
+engine = create_engine(engine_path)
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 session = Session()
