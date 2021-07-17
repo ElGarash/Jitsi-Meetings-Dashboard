@@ -5,6 +5,5 @@
     "azureFunctions.projectLanguage": "Python",
     "azureFunctions.projectRuntime": "~3",
     "debug.internalConsoleOptions": "neverOpen",
-    "python.formatting.provider": "black",
-    ]
+    "python.pythonPath": "c:\\Users\\Noor_2\\Desktop\\Jitsi-Meetings-Dashboard\\.venv\\Scripts\\python.exe"
 }
