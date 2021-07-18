@@ -3,7 +3,6 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, create_eng
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
-# Function execution context is the root directory, thus I have to join HttpTrigger1 as well.
 database_location = Path("/tmp").joinpath("database.db")
 engine_path = f"sqlite:///{database_location}"
 

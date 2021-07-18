@@ -8,13 +8,13 @@ from github import Github
 from .models import Label, Participant, Meeting, create_tables, database_location
 
 ACCESS_TOKEN = os.environ["GITHUB_ACCESS_TOKEN"]
-REPO_LINK = "ElGarash/Jitsi-Meetings-Dashboard"
+REPO_FULL_NAME = "ElGarash/Jitsi-Meetings-Dashboard"
 TARGET_BRANCH = "gh-pages"
 
 
 def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
     g = Github(ACCESS_TOKEN)
-    repo = g.get_repo(REPO_LINK)
+    repo = g.get_repo(REPO_FULL_NAME)
     db_file_contents = repo.get_contents("database.db", ref=TARGET_BRANCH)
     with open(database_location, "wb") as db_file:
         db_file.write(db_file_contents.decoded_content)
@@ -27,11 +27,12 @@ def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
 
     repo.update_file(
         path=db_file_contents.path,
-        message=f'Azure "{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}"',
+        message=f'Azure: "{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}"',
         content=updated_content,
         sha=db_file_contents.sha,
         branch=TARGET_BRANCH,
     )
+    
     return func.HttpResponse("Successful operation", status_code=200)
 
 
