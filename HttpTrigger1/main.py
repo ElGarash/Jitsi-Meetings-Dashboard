@@ -1,31 +1,38 @@
 import os
-import pathlib
-import subprocess
 import logging
 import azure.functions as func
 from datetime import datetime
+from github import Github
 
 
-from .models import Label, Participant, Meeting, create_tables, database_directory
+from .models import Label, Participant, Meeting, create_tables, database_location
+
+ACCESS_TOKEN = os.environ["GITHUB_ACCESS_TOKEN"]
+REPO_LINK = "ElGarash/Jitsi-Meetings-Dashboard"
+TARGET_BRANCH = "gh-pages"
 
 
-def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info("Python HTTP trigger function processed a request.")
+def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
+    g = Github(ACCESS_TOKEN)
+    repo = g.get_repo(REPO_LINK)
+    db_file_contents = repo.get_contents("database.db", ref=TARGET_BRANCH)
+    with open(database_location, "wb") as db_file:
+        db_file.write(db_file_contents.decoded_content)
+
     request_body = req.get_json()
-    subprocess.run(
-        f"git clone -b gh-pages --single-branch https://github.com/ElGarash/Jitsi-Meetings-Dashboard {database_directory}"
-    )
-    os.chdir(database_directory)
     insert_into_db(request_body)
-    subprocess.run(f'git commit -am "{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}"')
-    ACCESS_TOKEN = os.environ["GITHUB_ACCESS_TOKEN"]
-    subprocess.run(
-        f"git remote set-url origin https://nooreldeensalah:{ACCESS_TOKEN}@github.com/ElGarash/Jitsi-Meetings-Dashboard.git"
+
+    with open(database_location, "rb") as db_file:
+        updated_content = db_file.read()
+
+    repo.update_file(
+        path=db_file_contents.path,
+        message=f'Azure "{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}"',
+        content=updated_content,
+        sha=db_file_contents.sha,
+        branch=TARGET_BRANCH,
     )
-    subprocess.run("git push origin")
-    return func.HttpResponse(
-        "Successfully updated the database and pushed the changes.", status_code=200
-    )
+    return func.HttpResponse("Successful operation", status_code=200)
 
 
 def insert_into_db(data):
