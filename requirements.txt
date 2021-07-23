@@ -5,3 +5,4 @@
 azure-functions
 sqlalchemy
 PyGithub
+python-jose[cryptography]

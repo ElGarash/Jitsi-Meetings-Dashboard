@@ -6,13 +6,21 @@ from github import Github
 
 
 from .models import Label, Participant, Meeting, create_tables, database_location
+from .auth import *
 
 ACCESS_TOKEN = os.environ["GITHUB_ACCESS_TOKEN"]
 REPO_FULL_NAME = "ElGarash/Jitsi-Meetings-Dashboard"
 TARGET_BRANCH = "gh-pages"
 
 
-def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
+def main(req: func.HttpRequest) -> func.HttpResponse:
+    try:
+        token = get_token_auth_header(req)
+        payload = verify_decode_jwt(token)
+        check_permissions(PERMISSION, payload)
+    except AuthError as e:
+        return func.HttpResponse(f"{e.message}", status_code=e.status_code)
+
     g = Github(ACCESS_TOKEN)
     repo = g.get_repo(REPO_FULL_NAME)
     db_file_contents = repo.get_contents("database.db", ref=TARGET_BRANCH)
