@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
 database_location = Path("/tmp").joinpath("database.db")
+# database_location = Path().cwd().joinpath("HttpTrigger1").joinpath("database.db")  # Used for local testing
 engine_path = f"sqlite:///{database_location}"
 
 
