@@ -1,5 +1,6 @@
 import os
 import json
+from typing import Tuple, Union
 from urllib.request import urlopen
 from jose import jwt
 
@@ -9,44 +10,48 @@ ALGORITHMS = ["RS256"]
 PERMISSION = os.getenv("PERMISSION")
 
 
-class AuthError(Exception):
+class AuthError:
     def __init__(self, message, status_code):
         self.message = message
         self.status_code = status_code
 
 
-def get_token_auth_header(req):
-    auth_header = req.headers.__http_headers__.get("authorization", None)
-    if auth_header is None:
-        raise AuthError("Authorization header is missing", 401)
+def get_token_from_auth_header(req) -> Tuple[str, Union[AuthError, None]]:
+    auth_header = req.headers.__http_headers__.get("authorization", "")
+    if not auth_header:
+        return ("", AuthError("Authorization header is missing", 401))
     header_parts = auth_header.split()
     if header_parts[0].lower() != "bearer":
-        raise AuthError("Invalid Header: must start with Bearer.", 401)
+        return ("", AuthError("Invalid Header: must start with Bearer.", 401))
     if len(header_parts) == 1:
-        raise AuthError("Invalid Header: Missing token", 401)
+        return ("", AuthError("Invalid Header: Missing token", 401))
     if len(header_parts) > 2:
-        raise AuthError("Invalid Header: Must be bearer token", 401)
-    jwt_token = header_parts[1]
-    return jwt_token
+        return ("", AuthError("Invalid Header: Must be bearer token", 401))
+    return (header_parts[1], None)
 
 
-def check_permissions(permission, payload):
+def check_permissions(permission, payload) -> Union[AuthError, None]:
     permissions = payload.get("permissions", None)
     if permissions is None:
-        raise AuthError("Bad request: No permissions exist", 400)
+        return AuthError("Bad request: No permissions exist", 400)
     if permission not in permissions:
-        raise AuthError("Unauthorized request", 403)
-    return True
+        return AuthError("Unauthorized request", 403)
 
 
-def verify_decode_jwt(token):
+def verify_decode_jwt(token) -> Tuple[dict, Union[AuthError, None]]:
     jsonurl = urlopen(f"https://{AUTH0_DOMAIN}/.well-known/jwks.json")
     jwks = json.loads(jsonurl.read())
-    unverified_header = jwt.get_unverified_header(token)
+    try:
+        unverified_header = jwt.get_unverified_header(token)
+    except Exception:
+        return ({}, AuthError("Invalid Header: Unable to parse authentication token", 400))
     rsa_key = {}
     if "kid" not in unverified_header:
-        raise AuthError("Invalid Header: Authorization malformed.", 401)
+        return ({}, AuthError("Invalid Header: Authorization malformed.", 401))
 
+    # Checks if the JWT token is a valid token signed by Auth0 serivce.
+    # Those key properties are used to verify the JWT signature.
+    # For extra info refer to: https://auth0.com/docs/tokens/json-web-tokens/json-web-key-set-properties
     for key in jwks["keys"]:
         if key["kid"] == unverified_header["kid"]:
             rsa_key = {
@@ -66,15 +71,13 @@ def verify_decode_jwt(token):
                 issuer="https://" + AUTH0_DOMAIN + "/",
             )
 
-            return payload
+            return (payload, None)
 
         except jwt.ExpiredSignatureError:
-            raise AuthError("Error: Token Expired", 401)
+            return ({}, AuthError("Error: Token Expired", 401))
 
         except jwt.JWTClaimsError:
-            raise AuthError(
-                "Invalid claims:Please check the audience and the issuer", 401
-            )
+            return ({}, AuthError("Invalid claims:Please check the audience and the issuer", 401))
         except Exception:
-            raise AuthError("Invalid Header: Unable to parse authentication token", 400)
-    raise AuthError("Invalid Header: Unable to find the appropriate key.", 400)
+            return ({}, AuthError("Invalid Header: Unable to parse authentication token", 400))
+    return ({}, AuthError("Invalid Header: Unable to find the appropriate key.", 400))
