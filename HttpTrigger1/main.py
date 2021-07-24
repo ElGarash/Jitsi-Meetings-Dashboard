@@ -38,7 +38,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     repo.update_file(
         path=db_file_contents.path,
-        message=f'Azure: "{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}"',
+        message=f'Azure at "{datetime.now().strftime("%B %d, %Y - %I:%M %p")}"',
         content=updated_content,
         sha=db_file_contents.sha,
         branch=TARGET_BRANCH,
