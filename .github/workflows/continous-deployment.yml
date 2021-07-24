@@ -6,7 +6,7 @@ name: Build and deploy Python project to Azure Function App - MeetingTriggerApp
 on:
   push:
     branches:
-      - continous-deployment
+      - main
   workflow_dispatch:
 
 env:
@@ -34,7 +34,7 @@ jobs:
         popd
 
     - name: 'Run Azure Functions Action'
-      uses: Azure/functions-action@v1
+      uses: Azure/functions-action@v1.3.2  # Changed to v1.3.2 because a known issue as in https://github.com/Azure/functions-action/issues/86
       id: fa
       with:
         app-name: 'MeetingTriggerApp'
