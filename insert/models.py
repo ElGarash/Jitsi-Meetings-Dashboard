@@ -8,7 +8,7 @@ RUNNING_IN_AZURE = os.getenv('RUNNING_IN_AZURE', False)
 if RUNNING_IN_AZURE:
     database_location = Path("/tmp").joinpath("database.db")
 else:
-    database_location = Path().cwd().joinpath("HttpTrigger1").joinpath("database.db") # Used for local testing
+    database_location = Path().cwd().joinpath("insert").joinpath("database.db") # Used for local testing
 engine_path = f"sqlite:///{database_location}"
 
 
