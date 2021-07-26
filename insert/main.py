@@ -11,7 +11,7 @@ from .auth import get_token_from_auth_header, verify_decode_jwt, check_permissio
 ACCESS_TOKEN = os.environ["GITHUB_ACCESS_TOKEN"]
 REPO_FULL_NAME = "ElGarash/Jitsi-Meetings-Dashboard"
 TARGET_BRANCH = "gh-pages"
-
+DATE_FORMAT = "%B %d, %Y - %I:%M %p"
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     token, token_err = get_token_from_auth_header(req)
@@ -38,18 +38,19 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     repo.update_file(
         path=db_file_contents.path,
-        message=f'Azure at "{datetime.now().strftime("%B %d, %Y - %I:%M %p")}"',
+        message=f'Azure at {datetime.now().strftime(DATE_FORMAT)}',
         content=updated_content,
         sha=db_file_contents.sha,
         branch=TARGET_BRANCH,
     )
 
-    return func.HttpResponse("Successful operation", status_code=200)
+    return func.HttpResponse("Successfully inserted the meeting's data.", status_code=201)
 
 
 def insert_into_db(data):
     create_tables()  # Create the tables if not already created.
-    meeting_date = datetime.now()
+    current_time_str = datetime.now().strftime(DATE_FORMAT)
+    meeting_date = datetime.strptime(current_time_str, DATE_FORMAT)
     Meeting(date=meeting_date).insert()
     participants = data.get("participants", [])
     labels = data.get("labels", [])
