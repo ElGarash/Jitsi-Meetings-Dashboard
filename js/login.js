@@ -40,39 +40,12 @@ window.onload = async () => {
     }
 };
 
-// NEW
+
 const updateUI = async () => {
 
     const isAuthenticated = await auth0.isAuthenticated();
-
-    document.getElementById("btn-logout").disabled = !isAuthenticated;
-    document.getElementById("btn-login").disabled = isAuthenticated;
-
-  // NEW - add logic to show/hide JISI meeting api
-    if (isAuthenticated) {
-        
-        // * initialize the meeting API
-        const domain = 'meet.jit.si';
-        const options = {
-            roomName: "Noorsmeeting/TestingThisMeeting",
-            width: 700,
-            height: 700,
-            parentNode: document.querySelector('#meet'),
-            configOverwrite: {
-                startWithAudioMuted: false,
-                startWithVideoMuted: true,
-                requireDisplayName: true,
-            },
-            interfaceConfigOverwrite:
-                {
-                    SHOW_CHROME_EXTENSION_BANNER: false,
-                }
-        };
-    const api = new JitsiMeetExternalAPI(domain, options);
-
-    } else {
-    document.getElementById("gated-content").classList.add("hidden");
-    }
+    
+    toggelUI(isAuthenticated);
 };
 
 const login = async () => {
@@ -85,4 +58,46 @@ const logout = () => {
     auth0.logout({
         returnTo: window.location.origin
     });
+};
+
+
+const toggelUI = (isAuthenticated) => {
+    
+    // * toggle logout / login
+    login_request = document.getElementById("login-request");
+    login_btn = document.getElementById("btn-login");
+    logout_btn = document.getElementById("btn-logout");
+    
+    if(isAuthenticated){
+        
+        login_request.style.display = "none";
+        logout_btn.style.display = "block";
+        login_btn.style.display = "none";
+        
+        // * initialize the meeting API
+        const domain = 'meet.jit.si';
+        const options = {
+            roomName: "Noorsmeeting/TestingThisMeeting",
+            
+            parentNode: document.querySelector('#meet'),
+            configOverwrite: {
+                startWithAudioMuted: false,
+                startWithVideoMuted: true,
+                requireDisplayName: true,
+            },
+            interfaceConfigOverwrite:
+            {
+                SHOW_CHROME_EXTENSION_BANNER: false,
+            }
+        };
+
+        const api = new JitsiMeetExternalAPI(domain, options);
+    
+    } else {
+
+        login_request.style.display = "block";
+        document.getElementById("btn-logout").style.display = "none";
+        document.getElementById("btn-login").style.display = "block";
+    }
+
 };
