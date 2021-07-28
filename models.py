@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, create_eng
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
-RUNNING_IN_AZURE = os.getenv('RUNNING_IN_AZURE', False)
+RUNNING_IN_AZURE = os.getenv("RUNNING_IN_AZURE", False)
 if RUNNING_IN_AZURE:
     database_location = Path("/tmp").joinpath("database.db")
 else:
@@ -22,52 +22,48 @@ def create_tables():
     Base.metadata.create_all(engine)
 
 
-class Meeting(Base):
+class BaseModel(Base):
+    __abstract__ = True
+
+    def insert(self):
+        session.add(self)
+        session.commit()
+
+    @staticmethod
+    def update():
+        session.commit()
+
+    def delete(self):
+        session.delete(self)
+        session.commit()
+
+
+class Meeting(BaseModel):
     __tablename__ = "meeting"
     date = Column(DateTime, nullable=False, primary_key=True)
     link = Column(String(500), server_default="", default="")
     participants = relationship("Participant", backref="meeting")
     labels = relationship("Label", backref="meeting")
 
-    def format(self):
-        return {
-            "date": self.date,
-            "link": self.link,
-            "participants": [participant.name for participant in self.participants],
-            "labels": [label.name for label in self.labels],
-        }
-
-    def insert(self):
-        session.add(self)
-        session.commit()
-
     def __repr__(self):
-        return f"Meeting<{self.date.strftime('%b %d %Y %H:%M:%S')}>"
+        return f"Meeting<{self.date.strftime('%B %d, %Y - %I:%M %p')}>"
 
 
-class Participant(Base):
+class Participant(BaseModel):
     __tablename__ = "participant"
     id = Column(Integer().with_variant(Integer, "sqlite"), primary_key=True)
     name = Column(String(80), nullable=False)
     meeting_date = Column(DateTime, ForeignKey("meeting.date"), nullable=False)
 
-    def insert(self):
-        session.add(self)
-        session.commit()
-
     def __repr__(self):
         return f"Participant<{self.id}>"
 
 
-class Label(Base):
+class Label(BaseModel):
     __tablename__ = "label"
     id = Column(Integer().with_variant(Integer, "sqlite"), primary_key=True)
     name = Column(String(80), nullable=False)
     meeting_date = Column(DateTime, ForeignKey("meeting.date"), nullable=False)
-
-    def insert(self):
-        session.add(self)
-        session.commit()
 
     def __repr__(self):
         return f"Label<{self.id}>"
