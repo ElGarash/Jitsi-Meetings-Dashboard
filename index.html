@@ -4,16 +4,24 @@
         <meta charset="UTF-8" />
         <title>meeting</title>
         <script src='https://meet.jit.si/external_api.js'></script>
-    </head>
+        <link rel="stylesheet" type="text/css" href="/style/login.css"/>
+        </head>
 
     <body>
-        <button id="btn-login" disabled="true" onclick="login()">Log in</button>
-        <button id="btn-logout" disabled="true" onclick="logout()">Log out</button>
-        <div class="hidden" id="gated-content">
+        
+        <div id="log-dev" class="wrapper">
+            <button id="btn-logout" class="log-btn underlineHover" onclick="logout()">Log out</button>
+            <button id="btn-login" class="log-btn underlineHover"onclick="login()">Log in</button>
+        </div>
 
-        <div id="meet" class="margin:auto; text-align:center;"></div>
+        <div id="meet" class="meeting">
+            <h2 id="login-request">
+                Hi! <br>
+                You need to LOGIN to Enter the meeting.
+            </h2>
+        </div>
 
         <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
-        <script src="login.js"></script>
+        <script src="js/login.js"></script>
     </body>
 </html
