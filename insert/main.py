@@ -5,8 +5,8 @@ from datetime import datetime
 from github import Github
 
 
-from .models import Label, Participant, Meeting, create_tables, database_location
-from .auth import get_token_from_auth_header, verify_decode_jwt, check_permissions, PERMISSION
+from ..models import Label, Participant, Meeting, create_tables, database_location
+from ..auth import get_token_from_auth_header, verify_decode_jwt, check_permissions, PERMISSION
 
 ACCESS_TOKEN = os.environ["GITHUB_ACCESS_TOKEN"]
 REPO_FULL_NAME = "ElGarash/Jitsi-Meetings-Dashboard"
