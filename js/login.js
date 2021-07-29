@@ -115,10 +115,12 @@ const toggelUI = (isAuthenticated) => {
     login_btn = document.getElementById("btn-login");
     logout_btn = document.getElementById("btn-logout");
     call_api_btn = document.getElementById("btn-call-api");
+    labels_area = document.getElementById("labels");
 
     if(isAuthenticated){
         login_btn.style.display = "none";
         logout_btn.style.display = "block";
+        labels_area.style.display = "block";
         call_api_btn.style.display = "block";
         login_request.style.display = "none";
         
@@ -139,13 +141,14 @@ const toggelUI = (isAuthenticated) => {
             }    
         };    
 
-        const api = new JitsiMeetExternalAPI(domain, options);
+        window.api = new JitsiMeetExternalAPI(domain, options);
     
     } else {
 
-        document.getElementById("btn-logout").style.display = "none";
-        document.getElementById("btn-login").style.display = "block";
+        login_btn.style.display = "block";
         login_request.style.display = "block";
+        logout_btn.style.display = "none";
+        labels_area.style.display = "none"
         call_api_btn.style.display = "none";
     }    
 
@@ -158,21 +161,18 @@ const callApi = async () => {
 
         // Get the access token from the Auth0 client
         const token = await auth0.getTokenSilently();
-        let data = {
-                    participants: ["Noor", "Ahmed"],
-                    labels: ["WebRTC", "Authentication"]
-                };    
+        let get_labels = document.getElementById("labels").value.split(','); 
         // Make the call to the API, setting the token        
         // in the Authorization header
-        const response = await fetch("https://meetingtriggerapp.azurewebsites.net/api/insert?", {
+        await fetch("https://meetingtriggerapp.azurewebsites.net/api/insert?", {
             method: "POST",
             headers: {
                 "Content-type": "application/json;charset=UTF-8",
                 "Authorization": `Bearer ${token}`,
             },    
             body: JSON.stringify({
-                participants: ['Noor', 'Ahmed'],
-                labels: ['WebRTC', 'Authentication'],
+                "participants": api.getParticipantsInfo().map(p => p.displayName),
+                "labels": get_labels,
             }),    
         });    
 
