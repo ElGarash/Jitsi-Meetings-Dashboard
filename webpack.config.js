@@ -1,5 +1,5 @@
 module.exports = {
-    entry: "./src/index.ts",
+    entry: "./src/dashboard.ts",
     module: {
         rules: [{
             test: /\.tsx?$/,
