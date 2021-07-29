@@ -1,4 +1,5 @@
 {
-    "domain": "dev-bu5kjh8o.us.auth0.com",
-    "clientId": "46z5KPqPoNc9ZRTdUbRsvRchs31JIkZi"
+    "domain": "elgarash.us.auth0.com",
+    "clientId": "vV2NGwEyc9tL75dBW9017SBR8oqhAzWA",
+    "audience": "AzureServerlessFunction"
 }
