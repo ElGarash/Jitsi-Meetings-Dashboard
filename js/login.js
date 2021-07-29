@@ -8,7 +8,7 @@ const login = async (targetUrl) => {
         console.log("Logging in", targetUrl);
 
         const options = {
-        redirect_uri: window.location.origin
+            redirect_uri: window.location.origin,
         };
 
         if (targetUrl) {
@@ -21,25 +21,22 @@ const login = async (targetUrl) => {
     }
 };
 
-
 // * Executes the logout flow
 
 const logout = () => {
     try {
         console.log("Logging out");
         auth0.logout({
-        returnTo: window.location.origin
+            returnTo: window.location.origin,
         });
     } catch (err) {
         console.log("Log out failed", err);
     }
 };
 
-
 // * Retrieves the auth configuration from the server
 
 const fetchAuthConfig = () => fetch("/auth_config.json");
-
 
 // * Initializes the Auth0 client
 
@@ -50,7 +47,7 @@ const configureClient = async () => {
     auth0 = await createAuth0Client({
         domain: config.domain,
         client_id: config.clientId,
-        audience: config.audience
+        audience: config.audience,
     });
 };
 
@@ -69,7 +66,6 @@ const requireAuth = async (fn, targetUrl) => {
     return login(targetUrl);
 };
 
-
 window.onload = async () => {
     await configureClient();
 
@@ -78,15 +74,14 @@ window.onload = async () => {
 
     const isAuthenticated = await auth0.isAuthenticated();
 
-    if(isAuthenticated){
+    if (isAuthenticated) {
 
         return;
-    }    
+    }
 
     // * NEW - check for the code and state parameters
     const query = window.location.search;
-    if(query.includes("code=") && query.includes("state=")) {
-
+    if (query.includes("code=") && query.includes("state=")) {
         // * preocess the login state
         await auth0.handleRedirectCallback();
 
@@ -94,90 +89,78 @@ window.onload = async () => {
 
         // * use replaceState to redirect the user away and remove the querystring parameter
         window.history.replaceState({}, document.title, "/");
-        
-    }    
-};    
-
+    }
+};
 
 const updateUI = async () => {
-
     const isAuthenticated = await auth0.isAuthenticated();
-    
-    toggelUI(isAuthenticated);
-};    
 
+    toggleUI(isAuthenticated);
+};
 
-const toggelUI = (isAuthenticated) => {
-    
+const toggleUI = (isAuthenticated) => {
     // * Show & hide logout / login
-    
+
     login_request = document.getElementById("login-request");
     login_btn = document.getElementById("btn-login");
     logout_btn = document.getElementById("btn-logout");
     call_api_btn = document.getElementById("btn-call-api");
     labels_area = document.getElementById("labels");
 
-    if(isAuthenticated){
+    if (isAuthenticated) {
         login_btn.style.display = "none";
         logout_btn.style.display = "block";
         labels_area.style.display = "block";
         call_api_btn.style.display = "block";
         login_request.style.display = "none";
-        
+
         // * initialize the meeting API
-        const domain = 'meet.jit.si';
+        const domain = "meet.jit.si";
         const options = {
             roomName: "Noorsmeeting/TestingThisMeeting",
-            
-            parentNode: document.querySelector('#meet'),
+
+            parentNode: document.querySelector("#meet"),
             configOverwrite: {
                 startWithAudioMuted: false,
                 startWithVideoMuted: true,
                 requireDisplayName: true,
-            },    
-            interfaceConfigOverwrite:
-            {
+            },
+            interfaceConfigOverwrite: {
                 SHOW_CHROME_EXTENSION_BANNER: false,
-            }    
-        };    
+            },
+        };
 
         window.api = new JitsiMeetExternalAPI(domain, options);
-    
     } else {
-
         login_btn.style.display = "block";
         login_request.style.display = "block";
         logout_btn.style.display = "none";
-        labels_area.style.display = "none"
+        labels_area.style.display = "none";
         call_api_btn.style.display = "none";
-    }    
-
-};    
-
-
+    }
+};
 
 const callApi = async () => {
     try {
-
         // Get the access token from the Auth0 client
         const token = await auth0.getTokenSilently();
-        let get_labels = document.getElementById("labels").value.split(','); 
-        // Make the call to the API, setting the token        
+        let get_labels = document.getElementById("labels").value.split(",");
+        // Make the call to the API, setting the token
         // in the Authorization header
         await fetch("https://meetingtriggerapp.azurewebsites.net/api/insert?", {
             method: "POST",
             headers: {
                 "Content-type": "application/json;charset=UTF-8",
-                "Authorization": `Bearer ${token}`,
-            },    
+                Authorization: `Bearer ${token}`,
+                "Access-Control-Allow-Origin": "*"
+            },
             body: JSON.stringify({
-                "participants": api.getParticipantsInfo().map(p => p.displayName),
-                "labels": get_labels,
-            }),    
-        });    
-
+                participants: api.getParticipantsInfo().map((p) => p.displayName),
+                labels: get_labels,
+            }),
+        });
     } catch (e) {
         // Display errors in the console
         console.error(e);
-    }    
-};    
+    }
+};
