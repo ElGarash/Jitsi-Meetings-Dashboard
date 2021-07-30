@@ -41,14 +41,14 @@ eval("module.exports = __webpack_require__.p + \"c356a8c1ca29f8b1b394.js\";\n\n/
 
 /***/ }),
 
-/***/ "./src/index.ts":
-/*!**********************!*\
-  !*** ./src/index.ts ***!
-  \**********************/
+/***/ "./src/dashboard.ts":
+/*!**************************!*\
+  !*** ./src/dashboard.ts ***!
+  \**************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var sql_js_httpvfs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! sql.js-httpvfs */ \"./node_modules/sql.js-httpvfs/dist/index.js\");\n/* harmony import */ var sql_js_httpvfs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(sql_js_httpvfs__WEBPACK_IMPORTED_MODULE_0__);\n\r\nconst workerUrl = new URL(/* asset import */ __webpack_require__(/*! sql.js-httpvfs/dist/sqlite.worker.js */ \"./node_modules/sql.js-httpvfs/dist/sqlite.worker.js\"), __webpack_require__.b);\r\nconst wasmUrl = new URL(/* asset import */ __webpack_require__(/*! sql.js-httpvfs/dist/sql-wasm.wasm */ \"./node_modules/sql.js-httpvfs/dist/sql-wasm.wasm\"), __webpack_require__.b);\r\nasync function load() {\r\n    const worker = await (0,sql_js_httpvfs__WEBPACK_IMPORTED_MODULE_0__.createDbWorker)([\r\n        {\r\n            from: \"inline\",\r\n            config: {\r\n                serverMode: \"full\",\r\n                url: \"/Jitsi-Meetings-Dashboard/database.db\",\r\n                requestChunkSize: 4096,\r\n            },\r\n        },\r\n    ], workerUrl.toString(), wasmUrl.toString());\r\n    const result = await worker.db.query(`select * from participant`);\r\n    document.body.textContent = JSON.stringify(result);\r\n}\r\nload();\r\n\n\n//# sourceURL=webpack:///./src/index.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var sql_js_httpvfs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! sql.js-httpvfs */ \"./node_modules/sql.js-httpvfs/dist/index.js\");\n/* harmony import */ var sql_js_httpvfs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(sql_js_httpvfs__WEBPACK_IMPORTED_MODULE_0__);\n\r\nconst workerUrl = new URL(/* asset import */ __webpack_require__(/*! sql.js-httpvfs/dist/sqlite.worker.js */ \"./node_modules/sql.js-httpvfs/dist/sqlite.worker.js\"), __webpack_require__.b);\r\nconst wasmUrl = new URL(/* asset import */ __webpack_require__(/*! sql.js-httpvfs/dist/sql-wasm.wasm */ \"./node_modules/sql.js-httpvfs/dist/sql-wasm.wasm\"), __webpack_require__.b);\r\nasync function load() {\r\n    const worker = await (0,sql_js_httpvfs__WEBPACK_IMPORTED_MODULE_0__.createDbWorker)([\r\n        {\r\n            from: \"inline\",\r\n            config: {\r\n                serverMode: \"full\",\r\n                url: \"/Jitsi-Meetings-Dashboard/database.db\",\r\n                requestChunkSize: 4096,\r\n            },\r\n        },\r\n    ], workerUrl.toString(), wasmUrl.toString());\r\n    const result = await worker.db.query(`select * from participant`);\r\n    document.body.textContent = JSON.stringify(result);\r\n}\r\nload();\r\n\n\n//# sourceURL=webpack:///./src/dashboard.ts?");
 
 /***/ })
 
@@ -185,7 +185,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var sql_
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
-/******/ 	var __webpack_exports__ = __webpack_require__("./src/index.ts");
+/******/ 	var __webpack_exports__ = __webpack_require__("./src/dashboard.ts");
 /******/ 	
 /******/ })()
 ;
