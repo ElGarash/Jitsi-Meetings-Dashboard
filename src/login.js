@@ -153,7 +153,6 @@ const callApi = async () => {
 
         // Get the access token from the Auth0 client
         const token = await auth0.getTokenSilently();
-        let get_labels = document.getElementById("labels").value.split(",");
         // Make the call to the API, setting the token
         // in the Authorization header
         await fetch("https://meetingtriggerapp.azurewebsites.net/api/insert?", {
