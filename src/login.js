@@ -170,8 +170,10 @@ const callApi = async () => {
             }),
         });
 
-        if(respons){
-            alert(respons);
+        const get_response_content = await respons.json();
+
+        if(get_response_content){
+            alert(JSON.stringify(get_response_content));
         }else{
             alert("Some thing goes wrong with the request make it failed");
         }
