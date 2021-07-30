@@ -145,12 +145,18 @@ const toggleUI = async(isAuthenticated) => {
 };
 
 const callApi = async () => {
-    try {
-        
-        // * get participants names and labels of the meeting
-        const get_participants = api.getParticipantsInfo().map((p) => p.displayName);
-        const get_labels = document.getElementById("labels").value.split(",");
+    
+    // * get participants names and labels of the meeting
+    const get_participants = api.getParticipantsInfo().map((p) => p.displayName);
+    const get_labels = document.getElementById("labels").value.split(",");
+    
+    // * check if meeting started with participants
+    if(get_participants.length){
+        alert("You can not send request before any body joined the meeting")
+    }
 
+    try {
+    
         // Get the access token from the Auth0 client
         const token = await auth0.getTokenSilently();
         // Make the call to the API, setting the token
