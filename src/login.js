@@ -2,13 +2,13 @@
 let auth0 = null;
 
 // * Starts the authentication flow
-
+const APP_REDIRECT_URI = "https://elgarash.github.io/meetings";
 const login = async (targetUrl) => {
     try {
         console.log("Logging in", targetUrl);
 
         const options = {
-            redirect_uri: window.location.origin,
+            redirect_uri: APP_REDIRECT_URI,
         };
 
         if (targetUrl) {
@@ -27,7 +27,7 @@ const logout = () => {
     try {
         console.log("Logging out");
         auth0.logout({
-            returnTo: window.location.origin,
+            returnTo: APP_REDIRECT_URI,
         });
     } catch (err) {
         console.log("Log out failed", err);
@@ -82,7 +82,7 @@ window.onload = async () => {
     // * NEW - check for the code and state parameters
     const query = window.location.search;
     if (query.includes("code=") && query.includes("state=")) {
-        // * preocess the login state
+        // * process the login state
         await auth0.handleRedirectCallback();
 
         updateUI();
@@ -151,7 +151,7 @@ const callApi = async () => {
             method: "POST",
             headers: {
                 "Content-type": "application/json;charset=UTF-8",
-                Authorization: `Bearer ${token}`,
+                "Authorization": `Bearer ${token}`,
                 "Access-Control-Allow-Origin": "*"
             },
             body: JSON.stringify({
