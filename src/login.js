@@ -174,11 +174,11 @@ const callApi = async () => {
 
         if(get_response_content){
             alert(JSON.stringify(get_response_content));
-        }else{
-            alert("Some thing goes wrong with the request make it failed");
         }
+        
     } catch (e) {
         // Display errors in the console
         console.error(e);
+        alert("Some thing goes wrong with the request make it failed");
     }
 };
