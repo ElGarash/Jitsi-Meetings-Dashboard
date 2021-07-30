@@ -99,7 +99,7 @@ const updateUI = async () => {
     toggleUI(isAuthenticated);
 };
 
-const toggleUI = (isAuthenticated) => {
+const toggleUI = async(isAuthenticated) => {
     // * Show & hide logout / login
 
     login_request = document.getElementById("login-request");
@@ -107,7 +107,7 @@ const toggleUI = (isAuthenticated) => {
     logout_btn = document.getElementById("btn-logout");
     call_api_btn = document.getElementById("btn-call-api");
     labels_area = document.getElementById("labels");
-
+    const user = await auth0.getUser();
     if (isAuthenticated) {
         login_btn.style.display = "none";
         logout_btn.style.display = "block";
@@ -121,6 +121,9 @@ const toggleUI = (isAuthenticated) => {
             roomName: "Noorsmeeting/TestingThisMeeting",
 
             parentNode: document.querySelector("#meet"),
+            userInfo: {
+                displayName: user["name"],
+            },
             configOverwrite: {
                 startWithAudioMuted: false,
                 startWithVideoMuted: true,
