@@ -146,6 +146,11 @@ const toggleUI = async(isAuthenticated) => {
 
 const callApi = async () => {
     try {
+        
+        // * get participants names and labels of the meeting
+        const get_participants = api.getParticipantsInfo().map((p) => p.displayName);
+        const get_labels = document.getElementById("labels").value.split(",");
+
         // Get the access token from the Auth0 client
         const token = await auth0.getTokenSilently();
         let get_labels = document.getElementById("labels").value.split(",");
@@ -159,7 +164,7 @@ const callApi = async () => {
                 "Access-Control-Allow-Origin": "*"
             },
             body: JSON.stringify({
-                participants: api.getParticipantsInfo().map((p) => p.displayName),
+                participants: get_participants,
                 labels: get_labels,
             }),
         });
