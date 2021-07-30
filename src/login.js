@@ -151,7 +151,7 @@ const callApi = async () => {
     const get_labels = document.getElementById("labels").value.split(",");
     
     // * check if meeting started with participants
-    if(get_participants.length){
+    if(!get_participants.length){
         alert("You can not send request before any body joined the meeting")
     }
 
