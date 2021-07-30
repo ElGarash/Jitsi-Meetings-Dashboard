@@ -48,6 +48,7 @@ const configureClient = async () => {
         domain: config.domain,
         client_id: config.clientId,
         audience: config.audience,
+        redirect_uri: APP_REDIRECT_URI
     });
 };
 
@@ -76,7 +77,7 @@ window.onload = async () => {
 
     if (isAuthenticated) {
 
-        return;
+        toggleUI(isAuthenticated);
     }
 
     // * NEW - check for the code and state parameters
@@ -88,7 +89,7 @@ window.onload = async () => {
         updateUI();
 
         // * use replaceState to redirect the user away and remove the querystring parameter
-        window.history.replaceState({}, document.title, "/");
+        window.history.replaceState({}, document.title, "/meetings");
     }
 };
 
