@@ -147,7 +147,8 @@ const callApi = async () => {
     
     // * check if meeting started with participants
     if(!get_participants.length){
-        alert("You can not send request before any body joined the meeting")
+        alert("You can not send request before any body joined the meeting");
+        return;
     }
 
     try {
@@ -156,7 +157,7 @@ const callApi = async () => {
         const token = await auth0.getTokenSilently();
         // Make the call to the API, setting the token
         // in the Authorization header
-        await fetch("https://meetingtriggerapp.azurewebsites.net/api/insert?", {
+        const respons = await fetch("https://meetingtriggerapp.azurewebsites.net/api/insert?", {
             method: "POST",
             headers: {
                 "Content-type": "application/json;charset=UTF-8",
@@ -168,6 +169,12 @@ const callApi = async () => {
                 labels: get_labels,
             }),
         });
+
+        if(respons){
+            alert(respons);
+        }else{
+            alert("Some thing goes wrong with the request make it failed");
+        }
     } catch (e) {
         // Display errors in the console
         console.error(e);
