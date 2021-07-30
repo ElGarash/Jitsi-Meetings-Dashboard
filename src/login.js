@@ -75,11 +75,6 @@ window.onload = async () => {
 
     const isAuthenticated = await auth0.isAuthenticated();
 
-    if (isAuthenticated) {
-
-        toggleUI(isAuthenticated);
-    }
-
     // * NEW - check for the code and state parameters
     const query = window.location.search;
     if (query.includes("code=") && query.includes("state=")) {
