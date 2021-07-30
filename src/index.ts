@@ -13,7 +13,7 @@ async function load() {
         from: "inline",
         config: {
             serverMode: "full",
-            url: "/Jitsi-Meetings-Dashboard/database.db",
+            url: "meetings/database.db",
             requestChunkSize: 4096,
         },
         },
