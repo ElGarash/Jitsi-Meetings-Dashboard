@@ -51,10 +51,10 @@ def insert_into_db(data):
     create_tables()  # Create the tables if not already created.
     current_time_str = datetime.now().strftime(DATE_FORMAT)
     meeting_date = datetime.strptime(current_time_str, DATE_FORMAT)
-    Meeting(date=meeting_date).insert()
+    Meeting(meeting_date).insert()
     participants = data.get("participants", [])
     labels = data.get("labels", [])
     for participant in participants:
-        Participant(name=participant, meeting_date=meeting_date).insert()
+        Participant(participant, meeting_date).insert()
     for label in labels:
-        Label(name=label, meeting_date=meeting_date).insert()
+        Label(label, meeting_date).insert()
