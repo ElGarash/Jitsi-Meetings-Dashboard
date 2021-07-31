@@ -97,6 +97,8 @@ const updateUI = async () => {
     login_btn = document.getElementById("btn-login");
     logout_btn = document.getElementById("btn-logout");
     call_api_btn = document.getElementById("btn-call-api");
+    start_stream_btn = document.getElementById("btn-start-stream");
+    end_stream_btn = document.getElementById("btn-end-stream");
     labels_area = document.getElementById("labels");
     const user = await auth0.getUser();
     if (isAuthenticated) {
@@ -104,13 +106,14 @@ const updateUI = async () => {
         logout_btn.style.display = "block";
         labels_area.style.display = "block";
         call_api_btn.style.display = "block";
+        start_stream_btn.style.display = "block";
         login_request.style.display = "none";
-
+        
         // * initialize the meeting API
         const domain = "meet.jit.si";
         const options = {
             roomName: "Noorsmeeting/TestingThisMeeting",
-
+            
             parentNode: document.querySelector("#meet"),
             userInfo: {
                 displayName: user["name"],
@@ -124,7 +127,7 @@ const updateUI = async () => {
                 SHOW_CHROME_EXTENSION_BANNER: false,
             },
         };
-
+        
         window.api = new JitsiMeetExternalAPI(domain, options);
     } else {
         login_btn.style.display = "block";
@@ -132,7 +135,20 @@ const updateUI = async () => {
         logout_btn.style.display = "none";
         labels_area.style.display = "none";
         call_api_btn.style.display = "none";
+        end_stream_btn.style.display = "none"
+        start_stream_btn.style.display = "none";
     }
+
+    // * toggle streaming buttons
+    api.on(`recordingStatusChanged`, (res) => {
+        if(res.on){
+            start_stream_btn.style.display = "none";
+            end_stream_btn.style.display = "block";
+        }else{
+            start_stream_btn.style.display = "none";
+            end_stream_btn.style.display = "block";
+        }});    
+
 };
 
 const callApi = async () => {
@@ -177,6 +193,27 @@ const callApi = async () => {
 };
 
 // * start video stream of the running meeting on YouTube
-const startSteam = () => {
-    if()
+const startStream = () => {
+
+    // * check if thier is a running meeting
+    if(!api.getNumberOfParticipants()){
+        alert("You can not start streaming without statring a meeting.")
+        return
+    }
+
+        api.executeCommand('startRecording', {
+            mode: `stream`, //recording mode, either `file` or `stream`.
+            shouldShare: true, //whether the recording should be shared with the participants or not. Only applies to certain jitsi meet deploys.
+            youtubeStreamKey: `bby8-qsup-vc21-aamk-5xas`, //the youtube stream key.
+            youtubeBroadcastID: `` //the youtube broacast ID.
+        });
+        
+        
+        
+    };
+
+const endStream = () => {
+    alert("endStream");
+    api.executeCommand('stopRecording', mode='stream');
 };
+
