@@ -1,6 +1,14 @@
 import os
 from pathlib import Path
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, create_engine
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    DateTime,
+    ForeignKey,
+    create_engine,
+    Table,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
@@ -38,44 +46,63 @@ class BaseModel(Base):
         session.commit()
 
 
+participants_association_table = Table(
+    "meetings_participants",
+    Base.metadata,
+    Column("meeting_id", ForeignKey("meeting.id"), primary_key=True),
+    Column("participant_id", ForeignKey("participant.id"), primary_key=True),
+)
+
+labels_association_table = Table(
+    "meetings_labels",
+    Base.metadata,
+    Column("meeting_id", ForeignKey("meeting.id"), primary_key=True),
+    Column("label_id", ForeignKey("label.id"), primary_key=True),
+)
+
+
 class Meeting(BaseModel):
     __tablename__ = "meeting"
-    date = Column(DateTime, nullable=False, primary_key=True)
+    id = Column(Integer().with_variant(Integer, "sqlite"), primary_key=True)
+    date = Column(DateTime, nullable=False, unique=True)
     link = Column(String(500), server_default="", default="")
-    participants = relationship("Participant", backref="meeting")
-    labels = relationship("Label", backref="meeting")
+    participants = relationship("Participant", secondary="meetings_participants", backref="meetings")
+    labels = relationship("Label", secondary="meetings_labels", backref="meetings")
+
+    def add_child(self, child):
+        if child.__tablename__ == "participant":
+            self.participants.append(child)
+        elif child.__tablename__ == "label":
+            self.labels.append(child)
+        session.commit()
 
     def __init__(self, date, link=""):
         self.date = date
         self.link = link
 
     def __repr__(self):
-        return f"Meeting<{self.date.strftime('%B %d, %Y - %I:%M %p')}>"
+        return (f"Meeting(id={self.id}, date={self.date.strftime('%B %d, %Y - %I:%M %p')})")
 
 
 class Participant(BaseModel):
     __tablename__ = "participant"
     id = Column(Integer().with_variant(Integer, "sqlite"), primary_key=True)
-    name = Column(String(80), nullable=False)
-    meeting_date = Column(DateTime, ForeignKey("meeting.date"), nullable=False)
+    name = Column(String(80), nullable=False, unique=True)
 
-    def __init__(self, name, meeting_date):
+    def __init__(self, name):
         self.name = name
-        self.meeting_date = meeting_date
 
     def __repr__(self):
-        return f"Participant<{self.id}>"
+        return f"Participant(id={self.id}, name={self.name})"
 
 
 class Label(BaseModel):
     __tablename__ = "label"
     id = Column(Integer().with_variant(Integer, "sqlite"), primary_key=True)
-    name = Column(String(80), nullable=False)
-    meeting_date = Column(DateTime, ForeignKey("meeting.date"), nullable=False)
+    name = Column(String(80), nullable=False, unique=True)
 
-    def __init__(self, name, meeting_date):
+    def __init__(self, name):
         self.name = name
-        self.meeting_date = meeting_date
 
     def __repr__(self):
-        return f"Label<{self.id}>"
+        return f"Label(id={self.id}, name={self.name})"
