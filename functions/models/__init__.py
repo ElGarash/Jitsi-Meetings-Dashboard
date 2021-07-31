@@ -45,6 +45,10 @@ class Meeting(BaseModel):
     participants = relationship("Participant", backref="meeting")
     labels = relationship("Label", backref="meeting")
 
+    def __init__(self, date, link=""):
+        self.date = date
+        self.link = link
+
     def __repr__(self):
         return f"Meeting<{self.date.strftime('%B %d, %Y - %I:%M %p')}>"
 
@@ -55,6 +59,10 @@ class Participant(BaseModel):
     name = Column(String(80), nullable=False)
     meeting_date = Column(DateTime, ForeignKey("meeting.date"), nullable=False)
 
+    def __init__(self, name, meeting_date):
+        self.name = name
+        self.meeting_date = meeting_date
+
     def __repr__(self):
         return f"Participant<{self.id}>"
 
@@ -64,6 +72,10 @@ class Label(BaseModel):
     id = Column(Integer().with_variant(Integer, "sqlite"), primary_key=True)
     name = Column(String(80), nullable=False)
     meeting_date = Column(DateTime, ForeignKey("meeting.date"), nullable=False)
+
+    def __init__(self, name, meeting_date):
+        self.name = name
+        self.meeting_date = meeting_date
 
     def __repr__(self):
         return f"Label<{self.id}>"
