@@ -90,11 +90,7 @@ window.onload = async () => {
 
 const updateUI = async () => {
     const isAuthenticated = await auth0.isAuthenticated();
-
-    toggleUI(isAuthenticated);
-};
-
-const toggleUI = async(isAuthenticated) => {
+    
     // * Show & hide logout / login
 
     login_request = document.getElementById("login-request");
@@ -170,15 +166,17 @@ const callApi = async () => {
             }),
         });
 
-        const get_response_content = await respons.json();
-
-        if(get_response_content){
-            alert(JSON.stringify(get_response_content));
-        }
+        get_response = await respons.json();
+        alert(typeof(get_response));
         
     } catch (e) {
         // Display errors in the console
         console.error(e);
-        alert("Some thing goes wrong with the request make it failed");
+        alert("Some thing goes wrong with the request makes it fails.");
     }
+};
+
+// * start video stream of the running meeting on YouTube
+const startSteam = () => {
+    if()
 };
