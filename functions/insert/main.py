@@ -1,8 +1,10 @@
 import os
 import logging
+from typing import Union
 import azure.functions as func
 from datetime import datetime
 from github import Github
+from sqlalchemy.exc import SQLAlchemyError
 
 
 from ..models import Label, Participant, Meeting, create_tables, database_location
@@ -12,6 +14,7 @@ ACCESS_TOKEN = os.environ["GITHUB_ACCESS_TOKEN"]
 REPO_FULL_NAME = "ElGarash/Jitsi-Meetings-Dashboard"
 TARGET_BRANCH = "gh-pages"
 DATE_FORMAT = "%B %d, %Y - %I:%M %p"
+
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     token, token_err = get_token_from_auth_header(req)
@@ -31,14 +34,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         db_file.write(db_file_contents.decoded_content)
 
     request_body = req.get_json()
-    insert_into_db(request_body)
+    insertion_error = insert_into_db(request_body)
+    if insertion_error:
+        return func.HttpResponse(insertion_error["message"], status_code=insertion_error["status_code"])
 
     with open(database_location, "rb") as db_file:
         updated_content = db_file.read()
 
     repo.update_file(
         path=db_file_contents.path,
-        message=f'Azure at {datetime.now().strftime(DATE_FORMAT)}',
+        message=f"Azure at {datetime.now().strftime(DATE_FORMAT)}",
         content=updated_content,
         sha=db_file_contents.sha,
         branch=TARGET_BRANCH,
@@ -47,14 +52,26 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     return func.HttpResponse("Successfully inserted the meeting's data.", status_code=201)
 
 
-def insert_into_db(data):
+def insert_into_db(data) -> Union[dict, None]:
     create_tables()  # Create the tables if not already created.
     current_time_str = datetime.now().strftime(DATE_FORMAT)
     meeting_date = datetime.strptime(current_time_str, DATE_FORMAT)
-    Meeting(meeting_date).insert()
+    try:
+        Meeting(meeting_date).insert()
+    except SQLAlchemyError:
+        return {
+            "message": "A meeting with the same date and time already exists.",
+            "status_code": 409,
+        }
     participants = data.get("participants", [])
     labels = data.get("labels", [])
-    for participant in participants:
-        Participant(participant, meeting_date).insert()
-    for label in labels:
-        Label(label, meeting_date).insert()
+    try:
+        for participant in participants:
+            Participant(participant, meeting_date).insert()
+        for label in labels:
+            Label(label, meeting_date).insert()
+    except SQLAlchemyError:
+        return {
+            "message": "Failed to insert data into the database.",
+            "status_code": 422,
+        }
