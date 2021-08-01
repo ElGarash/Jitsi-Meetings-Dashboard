@@ -64,7 +64,8 @@ def post_dispatcher(request) -> Union[dict, None]:
         try:
             Meeting(meeting_date).insert()
         except SQLAlchemyError as e:
-            return func.HttpResponse(str(e), status_code=409)
+            session.rollback()
+            return func.HttpResponse(str(e), status_code=422)
         inserted_meeting = session.query(Meeting).filter(Meeting.date == meeting_date).first()
         get_name = attrgetter("name")
         db_participants = [get_name(participant) for participant in session.query(Participant).all()]
@@ -85,29 +86,22 @@ def post_dispatcher(request) -> Union[dict, None]:
                     label_instance = session.query(Label).filter(Label.name == label).first()
                     inserted_meeting.add_child(label_instance)
         except SQLAlchemyError as e:
+            session.rollback()
             return func.HttpResponse(str(e), status_code=422)
     elif model == Participant:
         name = request_body.get("name")
-        get_name = attrgetter("name")
-        db_participants = [get_name(participant) for participant in session.query(Participant).all()]
-        if name in db_participants:
-            return func.HttpResponse("Resource already exists", status_code=409)
-        else:
-            try:
-                Participant(name).insert()
-            except SQLAlchemyError as e:
-                return func.HttpResponse(str(e), status_code=422)
+        try:
+            Participant(name).insert()
+        except SQLAlchemyError as e:
+            session.rollback()
+            return func.HttpResponse(str(e), status_code=422)
     elif model == Label:
         name = request_body.get("name")
-        get_name = attrgetter("name")
-        db_labels = [get_name(label) for label in session.query(Label).all()]
-        if name in db_labels:
-            return func.HttpResponse("Resource already exists", status_code=409)
-        else:
-            try:
-                Label(name).insert()
-            except SQLAlchemyError as e:
-                return func.HttpResponse(str(e), status_code=422)
+        try:
+            Label(name).insert()
+        except SQLAlchemyError as e:
+            session.rollback()
+            return func.HttpResponse(str(e), status_code=422)
     push_db_file(db_file_metadata)
     return func.HttpResponse("Resource successfully inserted", status_code=201)
 
@@ -151,6 +145,7 @@ def patch_dispatcher(request) -> Union[dict, None]:
             resource.meetings = request_body.get("meetings", resource.meetings)
             resource.update()
     except SQLAlchemyError as e:
+        session.rollback()
         return func.HttpResponse(str(e), status_code=422)
     push_db_file(db_file_metadata)
     return func.HttpResponse("Successfully updated the resource", status_code=200)
