@@ -5,14 +5,14 @@
       "authLevel": "anonymous",
       "type": "httpTrigger",
       "direction": "in",
-      "name": "req",
+      "name": "request",
       "methods": [
         "delete",
         "patch",
         "post",
         "get"
       ],
-      "route": "{resources:alpha?}/{id:int?}"
+      "route": "dashboard/{resources:alpha?}/{id:int?}"
     },
     {
       "type": "http",
