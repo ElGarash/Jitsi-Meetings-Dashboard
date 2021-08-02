@@ -2,7 +2,7 @@
 let auth0 = null;
 
 // * Starts the authentication flow
-const APP_REDIRECT_URI = "https://elgarash.github.io/meetings";
+const APP_REDIRECT_URI = window.location.origin;
 const login = async (targetUrl) => {
     try {
         console.log("Logging in", targetUrl);
@@ -36,7 +36,7 @@ const logout = () => {
 
 // * Retrieves the auth configuration from the server
 
-const fetchAuthConfig = () => fetch("/meetings/auth_config.json");
+const fetchAuthConfig = () => fetch("/auth_config.json");
 
 // * Initializes the Auth0 client
 
@@ -84,7 +84,7 @@ window.onload = async () => {
         updateUI();
 
         // * use replaceState to redirect the user away and remove the querystring parameter
-        window.history.replaceState({}, document.title, "/meetings");
+        window.history.replaceState({}, document.title, "/");
     }
 };
 
@@ -140,14 +140,7 @@ const updateUI = async () => {
     }
 
     // * toggle streaming buttons
-    api.on(`recordingStatusChanged`, (res) => {
-        if(res.on){
-            start_stream_btn.style.display = "none";
-            end_stream_btn.style.display = "block";
-        }else{
-            start_stream_btn.style.display = "none";
-            end_stream_btn.style.display = "block";
-        }});    
+    toggleStream(start_stream_btn, end_stream_btn);
 
 };
 
@@ -213,7 +206,28 @@ const startStream = () => {
     };
 
 const endStream = () => {
-    alert("endStream");
     api.executeCommand('stopRecording', mode='stream');
 };
 
+// * toggle streaming buttons when streamin state changes
+const toggleStream = (start_stream_btn, end_stream_btn) => {
+
+    api.on(`recordingStatusChanged`, (res) => {
+        if(res.on){
+            start_stream_btn.style.display = "none";
+
+            // * add some styling to diffre end stream button while streaming
+            Object.assign(end_stream_btn.style, {
+                display: "block",
+                backgroundColor: "tomato"
+
+            });
+        }else{
+            end_stream_btn.style.display = "none";
+            Object.assign(start_stream_btn.style, {
+                display: "block",
+                backgroundColor: "#034063"
+
+            });
+        }}); 
+};
