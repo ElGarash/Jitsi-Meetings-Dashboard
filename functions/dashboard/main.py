@@ -65,16 +65,17 @@ def get_dispatcher(request):
         else:
             return func.HttpResponse("Secret not found", status_code=404)
     elif resource == "meetings":
-        get_room_name = attrgetter("room_name")
-        active_meetings = [
-            get_room_name(meeting)
-            for meeting in session.query(Meeting)
-            .filter(Meeting.active_status == True)
-            .all()
-        ]
+        active_meetings = (
+            session.query(Meeting).filter(Meeting.active_status == True).all()
+        )
+        active_meetings_dict = {
+            meeting.room_name: meeting.id for meeting in active_meetings
+        }
         if not active_meetings:
             return func.HttpResponse("There are no active meetings", status_code=404)
-        return func.HttpResponse(dumps(active_meetings), status_code=200)
+        return func.HttpResponse(
+            dumps(active_meetings_dict), status_code=200, mimetype="application/json"
+        )
 
 
 def post_dispatcher(request) -> Union[dict, None]:
