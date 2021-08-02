@@ -51,61 +51,62 @@ def get_dispatcher(request):
         else:
             return func.HttpResponse("Secret not found", status_code=404)
             
+            
 def post_dispatcher(request) -> Union[dict, None]:
     db_file_metadata = clone_db_file()
     create_tables()
     resource = request.route_params.get("resources")
     request_body = request.get_json()
     model = RESOURCE_TO_MODEL_MAPPER[resource]
-    if model == Meeting:
-        date_format = "%B %d, %Y - %I:%M %p"
-        current_time_str = datetime.now().strftime(date_format)
-        meeting_date = datetime.strptime(current_time_str, date_format)
-        try:
-            Meeting(meeting_date).insert()
-        except SQLAlchemyError as e:
-            session.rollback()
-            return func.HttpResponse(str(e), status_code=422)
-        inserted_meeting = session.query(Meeting).filter(Meeting.date == meeting_date).first()
-        get_name = attrgetter("name")
-        db_participants = [get_name(participant) for participant in session.query(Participant).all()]
-        db_labels = [get_name(label) for label in session.query(Label).all()]
-        participants = request_body.get("participants", [])
-        labels = request_body.get("labels", [])
-        try:
-            for participant in participants:
-                if participant not in db_participants:
-                    inserted_meeting.add_child(Participant(participant))
-                else:
-                    participant_instance = session.query(Participant).filter(Participant.name == participant).first()
-                    inserted_meeting.add_child(participant_instance)
-            for label in labels:
-                if label not in db_labels:
-                    inserted_meeting.add_child(Label(label))
-                else:
-                    label_instance = session.query(Label).filter(Label.name == label).first()
-                    inserted_meeting.add_child(label_instance)
-        except SQLAlchemyError as e:
-            session.rollback()
-            return func.HttpResponse(str(e), status_code=422)
-    elif model == Participant:
-        name = request_body.get("name")
-        try:
-            Participant(name).insert()
-        except SQLAlchemyError as e:
-            session.rollback()
-            return func.HttpResponse(str(e), status_code=422)
-    elif model == Label:
-        name = request_body.get("name")
-        try:
-            Label(name).insert()
-        except SQLAlchemyError as e:
-            session.rollback()
-            return func.HttpResponse(str(e), status_code=422)
+    try:
+        if model == Meeting:
+            post_meeting(request_body)
+        elif model == Participant:
+            post_participant(request_body)
+        elif model == Label:
+            post_label(request_body)
+    except SQLAlchemyError as e:
+        session.rollback()
+        return func.HttpResponse(str(e), status_code=422)
     push_db_file(db_file_metadata)
     return func.HttpResponse("Resource successfully inserted", status_code=201)
 
 
+def post_meeting(request_body):
+    date_format = "%B %d, %Y - %I:%M %p"
+    current_time_str = datetime.now().strftime(date_format)
+    meeting_date = datetime.strptime(current_time_str, date_format)
+    Meeting(meeting_date).insert()
+    inserted_meeting = session.query(Meeting).filter(Meeting.date == meeting_date).first()
+    get_name = attrgetter("name")
+    db_participants = [get_name(participant) for participant in session.query(Participant).all()]
+    db_labels = [get_name(label) for label in session.query(Label).all()]
+    participants = request_body.get("participants", [])
+    labels = request_body.get("labels", [])
+    for participant in participants:
+        if participant not in db_participants:
+            inserted_meeting.add_child(Participant(participant))
+        else:
+            participant_instance = session.query(Participant).filter(Participant.name == participant).first()
+            inserted_meeting.add_child(participant_instance)
+    for label in labels:
+        if label not in db_labels:
+            inserted_meeting.add_child(Label(label))
+        else:
+            label_instance = session.query(Label).filter(Label.name == label).first()
+            inserted_meeting.add_child(label_instance)
+     
+            
+def post_participant(request_body):
+    name = request_body.get("name")
+    Participant(name).insert()
+    
+    
+def post_label(request_body):
+    name = request_body.get("name")
+    Label(name).insert()
+    
+    
 def delete_dispatcher(request) -> Union[dict, None]:
     resource = request.route_params.get("resources")
     resource_id = request.route_params.get("id")
@@ -119,7 +120,6 @@ def delete_dispatcher(request) -> Union[dict, None]:
     return func.HttpResponse("Successfully deleted the resource", status_code=200)
     
 
-
 def patch_dispatcher(request) -> Union[dict, None]:
     resource = request.route_params.get("resources")
     resource_id = request.route_params.get("id")
@@ -131,21 +131,34 @@ def patch_dispatcher(request) -> Union[dict, None]:
         return func.HttpResponse("Resource doesn't exist", status_code=404)
     try:
         if model == Meeting:
-            resource.date = request_body.get("date", resource.date)
-            resource.link = request_body.get("link", resource.link)
-            resource.participants = request_body.get("participants", resource.participants)
-            resource.labels = request_body.get("labels", resource.labels)
-            resource.update()
+            patch_meeting(resource, request_body)
         elif model == Participant:
-            resource.name = request_body.get("name", resource.name)
-            resource.meetings = request_body.get("meetings", resource.meetings)
-            resource.update()
+            patch_participant(resource, request_body)
         elif model == Label:
-            resource.name = request_body.get("name", resource.name)
-            resource.meetings = request_body.get("meetings", resource.meetings)
-            resource.update()
+            patch_label(resource, request_body)
     except SQLAlchemyError as e:
         session.rollback()
         return func.HttpResponse(str(e), status_code=422)
     push_db_file(db_file_metadata)
     return func.HttpResponse("Successfully updated the resource", status_code=200)
+
+    
+def patch_label(resource, request_body):
+    resource.name = request_body.get("name", resource.name)
+    resource.meetings = request_body.get("meetings", resource.meetings)
+    resource.update()
+    
+    
+def patch_meeting(resource, request_body):
+    resource.date = request_body.get("date", resource.date)
+    resource.link = request_body.get("link", resource.link)
+    resource.participants = request_body.get("participants", resource.participants)
+    resource.labels = request_body.get("labels", resource.labels)
+    resource.update()
+    
+    
+def patch_participant(resource, request_body):
+    resource.name = request_body.get("name", resource.name)
+    resource.meetings = request_body.get("meetings", resource.meetings)
+    resource.update()
+    
