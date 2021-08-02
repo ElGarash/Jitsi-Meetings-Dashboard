@@ -66,7 +66,9 @@ class Meeting(BaseModel):
     id = Column(Integer().with_variant(Integer, "sqlite"), primary_key=True)
     date = Column(DateTime, nullable=False, unique=True)
     link = Column(String(500), server_default="", default="")
-    participants = relationship("Participant", secondary="meetings_participants", backref="meetings")
+    participants = relationship(
+        "Participant", secondary="meetings_participants", backref="meetings"
+    )
     labels = relationship("Label", secondary="meetings_labels", backref="meetings")
 
     def add_child(self, child):
@@ -81,7 +83,9 @@ class Meeting(BaseModel):
         self.link = link
 
     def __repr__(self):
-        return (f"Meeting(id={self.id}, date={self.date.strftime('%B %d, %Y - %I:%M %p')})")
+        return (
+            f"Meeting(id={self.id}, date={self.date.strftime('%B %d, %Y - %I:%M %p')})"
+        )
 
 
 class Participant(BaseModel):
