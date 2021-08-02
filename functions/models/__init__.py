@@ -8,6 +8,7 @@ from sqlalchemy import (
     ForeignKey,
     create_engine,
     Table,
+    Boolean,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
@@ -64,12 +65,20 @@ labels_association_table = Table(
 class Meeting(BaseModel):
     __tablename__ = "meeting"
     id = Column(Integer().with_variant(Integer, "sqlite"), primary_key=True)
+    room_name = Column(String(100), unique=True)
+    active_status = Column(Boolean, server_default="t", default=True)
     date = Column(DateTime, nullable=False, unique=True)
     link = Column(String(500), server_default="", default="")
     participants = relationship(
         "Participant", secondary="meetings_participants", backref="meetings"
     )
     labels = relationship("Label", secondary="meetings_labels", backref="meetings")
+
+    def __init__(self, room_name, date, active_status=True, link=""):
+        self.room_name = room_name
+        self.date = date
+        self.link = link
+        self.active_status = active_status
 
     def add_child(self, child):
         if child.__tablename__ == "participant":
@@ -78,14 +87,8 @@ class Meeting(BaseModel):
             self.labels.append(child)
         session.commit()
 
-    def __init__(self, date, link=""):
-        self.date = date
-        self.link = link
-
     def __repr__(self):
-        return (
-            f"Meeting(id={self.id}, date={self.date.strftime('%B %d, %Y - %I:%M %p')})"
-        )
+        return f"Meeting(id={self.id}, room_name={self.room_name}, active_status={self.active_status}, date={self.date.strftime('%B %d, %Y - %I:%M %p')})"
 
 
 class Participant(BaseModel):

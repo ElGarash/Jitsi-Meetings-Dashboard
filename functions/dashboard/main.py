@@ -51,10 +51,11 @@ def main(request: func.HttpRequest) -> func.HttpResponse:
 
 
 def get_dispatcher(request):
+    GET_RESOURCES = ["secrets", "meetings"]
     resource = request.route_params.get("resources")
-    if resource != "secrets":
+    if resource not in GET_RESOURCES:
         return func.HttpResponse("Method Not Allowed", status_code=405)
-    else:
+    elif resource == "secrets":
         secret_type = request.params.get("type", None)
         if secret_type is None:
             return func.HttpResponse("Bad Request", status_code=400)
@@ -63,6 +64,17 @@ def get_dispatcher(request):
             return func.HttpResponse(secret, status_code=200)
         else:
             return func.HttpResponse("Secret not found", status_code=404)
+    elif resource == "meetings":
+        get_room_name = attrgetter("room_name")
+        active_meetings = [
+            get_room_name(meeting)
+            for meeting in session.query(Meeting)
+            .filter(Meeting.active_status == True)
+            .all()
+        ]
+        if not active_meetings:
+            return func.HttpResponse("There are no active meetings", status_code=404)
+        return func.HttpResponse(dumps(active_meetings), status_code=200)
 
 
 def post_dispatcher(request) -> Union[dict, None]:
@@ -85,37 +97,39 @@ def post_dispatcher(request) -> Union[dict, None]:
     return func.HttpResponse("Resource successfully inserted", status_code=201)
 
 
-def post_meeting(request_body):
-    date_format = "%B %d, %Y - %I:%M %p"
-    current_time_str = datetime.now().strftime(date_format)
-    meeting_date = datetime.strptime(current_time_str, date_format)
-    Meeting(meeting_date).insert()
-    inserted_meeting = (
-        session.query(Meeting).filter(Meeting.date == meeting_date).first()
-    )
+def prepare_participants_for_insertion(participants):
     get_name = attrgetter("name")
     db_participants = [
         get_name(participant) for participant in session.query(Participant).all()
     ]
+    return [
+        Participant(participant)
+        for participant in participants
+        if participant not in db_participants
+    ]
+
+
+def prepare_labels_for_insertion(labels):
+    get_name = attrgetter("name")
     db_labels = [get_name(label) for label in session.query(Label).all()]
-    participants = request_body.get("participants", [])
-    labels = request_body.get("labels", [])
-    for participant in participants:
-        if participant not in db_participants:
-            inserted_meeting.add_child(Participant(participant))
-        else:
-            participant_instance = (
-                session.query(Participant)
-                .filter(Participant.name == participant)
-                .first()
-            )
-            inserted_meeting.add_child(participant_instance)
-    for label in labels:
-        if label not in db_labels:
-            inserted_meeting.add_child(Label(label))
-        else:
-            label_instance = session.query(Label).filter(Label.name == label).first()
-            inserted_meeting.add_child(label_instance)
+    return [Label(label) for label in labels if label not in db_labels]
+
+
+def post_meeting(request_body):
+    date_format = "%B %d, %Y - %I:%M %p"
+    current_time_str = datetime.now().strftime(date_format)
+    meeting_date = datetime.strptime(current_time_str, date_format)
+    meeting_name = request_body.get("room_name")
+    Meeting(meeting_name, meeting_date).insert()
+    inserted_meeting = (
+        session.query(Meeting).filter(Meeting.date == meeting_date).first()
+    )
+    if participants := request_body.get("participants"):
+        participant_objects = prepare_participants_for_insertion(participants)
+        inserted_meeting.participants = participant_objects
+    if labels := request_body.get("labels"):
+        label_objects = prepare_labels_for_insertion(labels)
+        inserted_meeting.labels = label_objects
 
 
 def post_participant(request_body):
@@ -171,10 +185,16 @@ def patch_label(resource, request_body):
 
 
 def patch_meeting(resource, request_body):
+    resource.room_name = request_body.get("room_name", resource.room_name)
+    resource.active_status = request_body.get("active_status", resource.active_status)
     resource.date = request_body.get("date", resource.date)
     resource.link = request_body.get("link", resource.link)
-    resource.participants = request_body.get("participants", resource.participants)
-    resource.labels = request_body.get("labels", resource.labels)
+    if participants := request_body.get("participants"):
+        participant_objects = prepare_participants_for_insertion(participants)
+        resource.participants = participant_objects
+    if labels := request_body.get("labels"):
+        label_objects = prepare_labels_for_insertion(labels)
+        resource.labels = label_objects
     resource.update()
 
 
