@@ -44,7 +44,10 @@ def verify_decode_jwt(token) -> Tuple[dict, Union[AuthError, None]]:
     try:
         unverified_header = jwt.get_unverified_header(token)
     except Exception:
-        return ({}, AuthError("Invalid Header: Unable to parse authentication token", 400))
+        return (
+            {},
+            AuthError("Invalid Header: Unable to parse authentication token", 400),
+        )
     rsa_key = {}
     if "kid" not in unverified_header:
         return ({}, AuthError("Invalid Header: Authorization malformed.", 401))
@@ -77,7 +80,15 @@ def verify_decode_jwt(token) -> Tuple[dict, Union[AuthError, None]]:
             return ({}, AuthError("Error: Token Expired", 401))
 
         except jwt.JWTClaimsError:
-            return ({}, AuthError("Invalid claims:Please check the audience and the issuer", 401))
+            return (
+                {},
+                AuthError(
+                    "Invalid claims:Please check the audience and the issuer", 401
+                ),
+            )
         except Exception:
-            return ({}, AuthError("Invalid Header: Unable to parse authentication token", 400))
+            return (
+                {},
+                AuthError("Invalid Header: Unable to parse authentication token", 400),
+            )
     return ({}, AuthError("Invalid Header: Unable to find the appropriate key.", 400))
