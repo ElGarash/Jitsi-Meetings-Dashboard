@@ -1,0 +1,34 @@
+** Permit Multiple Rooms in Parallel **
+
+as an authorized client:
+	after login I want to see all the opened room.
+	
+	I want to see the participant of each room, the room labels and name.
+	
+	I want to join room if I clicked on it.
+	
+	I want to be able to create a room.
+	
+	I want the ability to allow or disallow pepole to Join my room.
+	
+	
+
+Show rooms:
+	make a call to database to get all the running meetings.
+	show the meetings on a dive.
+
+join room:
+	call the JITSI API with the room name. 
+
+create room:
+	make a form to contain the input.
+	ask for room name and meeting labels.
+	Make a POST request to put the room data in the database.
+
+accept join request:
+	???
+
+leave a meeting:
+	remove JITSI API.
+	request the room from the database
+	return to home page.
