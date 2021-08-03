@@ -64,6 +64,8 @@ def get_dispatcher(request):
         else:
             return func.HttpResponse("Secret not found", status_code=404)
     elif resource == "meetings":
+        if request.route_params.get("id", None):
+            return func.HttpResponse("Method Not Allowed", status_code=405)
         clone_db_file()
         active_meetings = (
             session.query(Meeting).filter(Meeting.date_ended == None).all()
@@ -81,7 +83,9 @@ def get_dispatcher(request):
 def post_dispatcher(request) -> Union[dict, None]:
     db_file_metadata = clone_db_file()
     create_tables()
-    resource = request.route_params.get("resources")
+    resource = request.route_params.get("resources", None)
+    if not resource or request.route_params.get("id", None):
+        return func.HttpResponse("Bad request", status_code=400)
     request_body = request.get_json()
     model = RESOURCE_TO_MODEL_MAPPER[resource]
     try:
@@ -105,7 +109,7 @@ def post_meeting(request_body, request_method):
     meeting_name = request_body.get("room_name")
     Meeting(meeting_name, meeting_date).insert()
     inserted_meeting = (
-        session.query(Meeting).filter(Meeting.date_started == meeting_date).first()
+        session.query(Meeting).filter(Meeting.room_name == meeting_name).first()
     )
     add_participants_and_labels_to_meeting(
         inserted_meeting, request_body, request_method
@@ -116,14 +120,14 @@ def add_participants_and_labels_to_meeting(
     inserted_meeting, request_body, request_method
 ):
     db_participants = [
-        participant.name for participant in session.query(Participant).all()
+        participant.name.casefold() for participant in session.query(Participant).all()
     ]
-    db_labels = [label.name for label in session.query(Label).all()]
+    db_labels = [label.name.casefold() for label in session.query(Label).all()]
     if request_method == "PATCH":
         inserted_meeting.participants.clear()
         inserted_meeting.labels.clear()
     for participant in request_body.get("participants", []):
-        if participant not in db_participants:
+        if participant.casefold() not in db_participants:
             inserted_meeting.add_child(Participant(participant))
         else:
             participant_instance = (
@@ -133,7 +137,7 @@ def add_participants_and_labels_to_meeting(
             )
             inserted_meeting.add_child(participant_instance)
     for label in request_body.get("labels", []):
-        if label not in db_labels:
+        if label.casefold() not in db_labels:
             inserted_meeting.add_child(Label(label))
         else:
             label_instance = session.query(Label).filter(Label.name == label).first()
@@ -151,8 +155,11 @@ def post_label(request_body):
 
 
 def delete_dispatcher(request) -> Union[dict, None]:
-    resource = request.route_params.get("resources")
-    resource_id = request.route_params.get("id")
+    DELETE_RESOURCES = ["meetings", "labels", "participants"]
+    resource = request.route_params.get("resources", None)
+    resource_id = request.route_params.get("id", None)
+    if resource not in DELETE_RESOURCES or not resource_id:
+        return func.HttpResponse("Bad request", status_code=400)
     model = RESOURCE_TO_MODEL_MAPPER[resource]
     db_file_metadata = clone_db_file()
     resource = session.get(model, resource_id)
@@ -164,8 +171,11 @@ def delete_dispatcher(request) -> Union[dict, None]:
 
 
 def patch_dispatcher(request) -> Union[dict, None]:
-    resource = request.route_params.get("resources")
-    resource_id = request.route_params.get("id")
+    PATCH_RESOURCES = ["meetings", "labels", "participants"]
+    resource = request.route_params.get("resources", None)
+    resource_id = request.route_params.get("id", None)
+    if resource not in PATCH_RESOURCES or not resource_id:
+        return func.HttpResponse("Bad request", status_code=400)
     request_body = request.get_json()
     model = RESOURCE_TO_MODEL_MAPPER[resource]
     db_file_metadata = clone_db_file()
