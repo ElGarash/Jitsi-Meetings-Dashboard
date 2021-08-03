@@ -65,8 +65,9 @@ def get_dispatcher(request):
         else:
             return func.HttpResponse("Secret not found", status_code=404)
     elif resource == "meetings":
+        clone_db_file()
         active_meetings = (
-            session.query(Meeting).filter(Meeting.active_status == True).all()
+            session.query(Meeting).filter(Meeting.date_ended == None).all()
         )
         active_meetings_dict = {
             meeting.room_name: meeting.id for meeting in active_meetings
