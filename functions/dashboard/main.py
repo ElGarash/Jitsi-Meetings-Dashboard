@@ -86,7 +86,7 @@ def post_dispatcher(request) -> Union[dict, None]:
     model = RESOURCE_TO_MODEL_MAPPER[resource]
     try:
         if model == Meeting:
-            post_meeting(request_body)
+            post_meeting(request_body, request.method)
         elif model == Participant:
             post_participant(request_body)
         elif model == Label:
@@ -98,7 +98,7 @@ def post_dispatcher(request) -> Union[dict, None]:
     return func.HttpResponse("Resource successfully inserted", status_code=201)
 
 
-def post_meeting(request_body):
+def post_meeting(request_body, request_method):
     date_format = "%B %d, %Y - %I:%M %p"
     current_time_str = datetime.now().strftime(date_format)
     meeting_date = datetime.strptime(current_time_str, date_format)
@@ -107,16 +107,21 @@ def post_meeting(request_body):
     inserted_meeting = (
         session.query(Meeting).filter(Meeting.date_started == meeting_date).first()
     )
-    add_participants_and_labels_to_meeting(inserted_meeting, request_body)
+    add_participants_and_labels_to_meeting(
+        inserted_meeting, request_body, request_method
+    )
 
 
 def add_participants_and_labels_to_meeting(
-    inserted_meeting, request_body
-):  # Accurately behaves with POST but not PATCH.
+    inserted_meeting, request_body, request_method
+):
     db_participants = [
         participant.name for participant in session.query(Participant).all()
     ]
     db_labels = [label.name for label in session.query(Label).all()]
+    if request_method == "PATCH":
+        inserted_meeting.participants.clear()
+        inserted_meeting.labels.clear()
     for participant in request_body.get("participants", []):
         if participant not in db_participants:
             inserted_meeting.add_child(Participant(participant))
@@ -169,7 +174,7 @@ def patch_dispatcher(request) -> Union[dict, None]:
         return func.HttpResponse("Resource doesn't exist", status_code=404)
     try:
         if model == Meeting:
-            patch_meeting(resource, request_body)
+            patch_meeting(resource, request_body, request.method)
         elif model == Participant:
             patch_participant(resource, request_body)
         elif model == Label:
@@ -187,7 +192,7 @@ def patch_label(resource, request_body):
     resource.update()
 
 
-def patch_meeting(resource, request_body):
+def patch_meeting(resource, request_body, request_method):
     resource.room_name = request_body.get("room_name", resource.room_name)
     resource.link = request_body.get("link", resource.link)
     # resource.date_started = request_body.get("date_started", resource.date_started) # Requires changes + not sure if needed
@@ -196,10 +201,7 @@ def patch_meeting(resource, request_body):
         current_time_str = datetime.now().strftime(date_format)
         date_ended = datetime.strptime(current_time_str, date_format)
         resource.date_ended = date_ended
-    add_participants_and_labels_to_meeting(resource, request_body)  # FIXME
-    # This function doesn't remove the current labels if they aren't in the request body,
-    # they rather add the non-existing ones, (not accurate functionality for a PATCH request),
-    # But we can remove a label or a participant with a DELETE request but the whole resource will be deleted, not only the relationship.
+    add_participants_and_labels_to_meeting(resource, request_body, request_method)
     resource.update()
 
 
