@@ -1,0 +1,58 @@
+endpoints:
+  - name: dashboard
+    path: https://meetingtriggerapp.azurewebsites.net/dashboard
+    headers:
+      Authorization: Bearer ${Token}
+    requests:
+      - name: get_active_meetings
+        path: meetings
+        method: get
+      - name: get_secrets
+        path: secrets
+        params:
+           type: FUNCTIONS_WORKER_RUNTIME
+        method: get
+      - name: insert_meeting
+        path: meetings
+        method: post
+        body:
+           room_name: ScanAPI Room 2
+           participants: ['Noor', 'Ahmed']
+           labels: ['DevOps']
+      - name: insert_participant
+        path: participants
+        method: post
+        body:
+           name: Khaled
+      - name: insert_label
+        path: labels
+        method: post
+        body:
+          name: CI/CD
+      - name: patch_meeting
+        path: meetings/1
+        method: patch
+        body:
+           room_name: "ScanAPI Room 3"
+           ending_flag: true
+           participants: ['Mark', 'John']
+           labels: ['Frontend', 'Backend']
+      - name: patch_participant
+        path: participants/1
+        method: patch
+        body:
+           name: "Tony"
+      - name: patch_label
+        path: labels/1
+        method: patch
+        body:
+           name: "GCP"
+      - name: delete_meeting
+        path: meetings/1
+        method: delete
+      - name: delete_participant
+        path: participants/1
+        method: delete
+      - name: delete_label
+        path: labels/1
+        method: delete
