@@ -4,7 +4,6 @@ from typing import Union
 from json import dumps
 from sqlalchemy.exc import SQLAlchemyError
 import azure.functions as func
-from operator import attrgetter
 
 from ..models import Label, Participant, Meeting, create_tables, session
 from ..auth import (
@@ -99,24 +98,6 @@ def post_dispatcher(request) -> Union[dict, None]:
     return func.HttpResponse("Resource successfully inserted", status_code=201)
 
 
-def prepare_participants_for_insertion(participants):
-    get_name = attrgetter("name")
-    db_participants = [
-        get_name(participant) for participant in session.query(Participant).all()
-    ]
-    return [
-        Participant(participant)
-        for participant in participants
-        if participant not in db_participants
-    ]
-
-
-def prepare_labels_for_insertion(labels):
-    get_name = attrgetter("name")
-    db_labels = [get_name(label) for label in session.query(Label).all()]
-    return [Label(label) for label in labels if label not in db_labels]
-
-
 def post_meeting(request_body):
     date_format = "%B %d, %Y - %I:%M %p"
     current_time_str = datetime.now().strftime(date_format)
@@ -124,14 +105,34 @@ def post_meeting(request_body):
     meeting_name = request_body.get("room_name")
     Meeting(meeting_name, meeting_date).insert()
     inserted_meeting = (
-        session.query(Meeting).filter(Meeting.date == meeting_date).first()
+        session.query(Meeting).filter(Meeting.date_started == meeting_date).first()
     )
-    if participants := request_body.get("participants"):
-        participant_objects = prepare_participants_for_insertion(participants)
-        inserted_meeting.participants = participant_objects
-    if labels := request_body.get("labels"):
-        label_objects = prepare_labels_for_insertion(labels)
-        inserted_meeting.labels = label_objects
+    add_participants_and_labels_to_meeting(inserted_meeting, request_body)
+
+
+def add_participants_and_labels_to_meeting(
+    inserted_meeting, request_body
+):  # Accurately behaves with POST but not PATCH.
+    db_participants = [
+        participant.name for participant in session.query(Participant).all()
+    ]
+    db_labels = [label.name for label in session.query(Label).all()]
+    for participant in request_body.get("participants", []):
+        if participant not in db_participants:
+            inserted_meeting.add_child(Participant(participant))
+        else:
+            participant_instance = (
+                session.query(Participant)
+                .filter(Participant.name == participant)
+                .first()
+            )
+            inserted_meeting.add_child(participant_instance)
+    for label in request_body.get("labels", []):
+        if label not in db_labels:
+            inserted_meeting.add_child(Label(label))
+        else:
+            label_instance = session.query(Label).filter(Label.name == label).first()
+            inserted_meeting.add_child(label_instance)
 
 
 def post_participant(request_body):
@@ -182,25 +183,27 @@ def patch_dispatcher(request) -> Union[dict, None]:
 
 def patch_label(resource, request_body):
     resource.name = request_body.get("name", resource.name)
-    resource.meetings = request_body.get("meetings", resource.meetings)
+    # resource.meetings = request_body.get("meetings", resource.meetings) # Requires changes + not sure if needed
     resource.update()
 
 
 def patch_meeting(resource, request_body):
     resource.room_name = request_body.get("room_name", resource.room_name)
-    resource.active_status = request_body.get("active_status", resource.active_status)
-    resource.date = request_body.get("date", resource.date)
     resource.link = request_body.get("link", resource.link)
-    if participants := request_body.get("participants"):
-        participant_objects = prepare_participants_for_insertion(participants)
-        resource.participants = participant_objects
-    if labels := request_body.get("labels"):
-        label_objects = prepare_labels_for_insertion(labels)
-        resource.labels = label_objects
+    # resource.date_started = request_body.get("date_started", resource.date_started) # Requires changes + not sure if needed
+    if request_body.get("ending_flag", None):
+        date_format = "%B %d, %Y - %I:%M %p"
+        current_time_str = datetime.now().strftime(date_format)
+        date_ended = datetime.strptime(current_time_str, date_format)
+        resource.date_ended = date_ended
+    add_participants_and_labels_to_meeting(resource, request_body)  # FIXME
+    # This function doesn't remove the current labels if they aren't in the request body,
+    # they rather add the non-existing ones, (not accurate functionality for a PATCH request),
+    # But we can remove a label or a participant with a DELETE request but the whole resource will be deleted, not only the relationship.
     resource.update()
 
 
 def patch_participant(resource, request_body):
     resource.name = request_body.get("name", resource.name)
-    resource.meetings = request_body.get("meetings", resource.meetings)
+    # resource.meetings = request_body.get("meetings", resource.meetings) # Requires changes + not sure if needed
     resource.update()
