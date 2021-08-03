@@ -75,7 +75,7 @@ class Meeting(BaseModel):
     labels = relationship("Label", secondary="meetings_labels", backref="meetings")
 
     def __init__(self, room_name, date_started, date_ended=None, link=""):
-        self.room_name = room_name
+        self.room_name = room_name.title()
         self.link = link
         self.date_started = date_started
         self.date_ended = date_ended
@@ -97,7 +97,7 @@ class Participant(BaseModel):
     name = Column(String(80), nullable=False, unique=True)
 
     def __init__(self, name):
-        self.name = name
+        self.name = name.title()
 
     def __repr__(self):
         return f"Participant(id={self.id}, name={self.name})"
@@ -109,7 +109,7 @@ class Label(BaseModel):
     name = Column(String(80), nullable=False, unique=True)
 
     def __init__(self, name):
-        self.name = name
+        self.name = name.title()
 
     def __repr__(self):
         return f"Label(id={self.id}, name={self.name})"
