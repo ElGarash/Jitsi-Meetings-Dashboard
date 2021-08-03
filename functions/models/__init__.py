@@ -66,19 +66,19 @@ class Meeting(BaseModel):
     __tablename__ = "meeting"
     id = Column(Integer().with_variant(Integer, "sqlite"), primary_key=True)
     room_name = Column(String(100), unique=True)
-    active_status = Column(Boolean, server_default="t", default=True)
-    date = Column(DateTime, nullable=False, unique=True)
     link = Column(String(500), server_default="", default="")
+    date_started = Column(DateTime, nullable=False)
+    date_ended = Column(DateTime)
     participants = relationship(
         "Participant", secondary="meetings_participants", backref="meetings"
     )
     labels = relationship("Label", secondary="meetings_labels", backref="meetings")
 
-    def __init__(self, room_name, date, active_status=True, link=""):
+    def __init__(self, room_name, date_started, date_ended=None, link=""):
         self.room_name = room_name
-        self.date = date
         self.link = link
-        self.active_status = active_status
+        self.date_started = date_started
+        self.date_ended = date_ended
 
     def add_child(self, child):
         if child.__tablename__ == "participant":
@@ -88,7 +88,7 @@ class Meeting(BaseModel):
         session.commit()
 
     def __repr__(self):
-        return f"Meeting(id={self.id}, room_name={self.room_name}, active_status={self.active_status}, date={self.date.strftime('%B %d, %Y - %I:%M %p')})"
+        return f"Meeting(id={self.id}, room_name={self.room_name}, date_started={self.date_started.strftime('%B %d, %Y - %I:%M %p')})"
 
 
 class Participant(BaseModel):
