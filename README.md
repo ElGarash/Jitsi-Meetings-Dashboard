@@ -16,15 +16,15 @@ A serverless meetings application with a dashboard hosted on GitHub Pages.
 
 The application uses [**Jitsi**](https://github.com/jitsi/jitsi-meet) IFrame API to perform the following functions:
 
-- Start meetings and manage concurrent and manage concurrent meeting rooms.
-- Send participants and meeting labels data to the database using the Azure function API.
+- Start meetings and manage concurrent meeting rooms.
+- Send meeting's participants and labels data to the database using the Azure function API.
 - Stream the meeting on YouTube.
 
-The backend is an Azure Function App written in Python used to perform CRUD operations on the database by cloning it, performing the database operation, then pushing it again.
+The backend is an Azure Function App written in Python used to perform CRUD operations on the database by cloning it, performing the database operation, then pushing it again to GitHub.
 
-Backend uses **PyGitHub** which is a library to access the GitHub REST API, and SQLAlchemy as ORM for the database.
+Backend uses **PyGitHub** library which is used to access the GitHub REST API, and **SQLAlchemy** as an ORM for the database.
 
-GitHub Pages uses sql.js-httpvfs which is used to perform SQL queries to read from the database hosted at GitHub Pages.
+GitHub Pages uses **sql.js-httpvfs** which is used to perform SQL queries to read from the database hosted at GitHub Pages.
 
 Any requests to the API must be authorized, authentication is performed with a third-party library [**Auth0**](https://auth0.com)
 
