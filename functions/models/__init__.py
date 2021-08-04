@@ -65,20 +65,20 @@ labels_association_table = Table(
 class Meeting(BaseModel):
     __tablename__ = "meeting"
     id = Column(Integer().with_variant(Integer, "sqlite"), primary_key=True)
-    room_name = Column(String(100), unique=True)
-    link = Column(String(500), server_default="", default="")
+    name = Column(String(100), unique=True)
     date_started = Column(DateTime, nullable=False)
     date_ended = Column(DateTime, server_default=None, default=None)
+    link = Column(String(500), server_default="", default="")
     participants = relationship(
         "Participant", secondary="meetings_participants", backref="meetings"
     )
     labels = relationship("Label", secondary="meetings_labels", backref="meetings")
 
-    def __init__(self, room_name, date_started, date_ended=None, link=""):
-        self.room_name = room_name
-        self.link = link
+    def __init__(self, name, date_started, date_ended=None, link=""):
+        self.name = name
         self.date_started = date_started
         self.date_ended = date_ended
+        self.link = link
 
     def add_child(self, child):
         if child.__tablename__ == "participant":

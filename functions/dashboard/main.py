@@ -74,14 +74,16 @@ def get_dispatcher(request):
         active_meetings = (
             session.query(Meeting).filter(Meeting.date_ended == None).all()
         )
-        active_meetings_dict = {
-            meeting.room_name: meeting.id for meeting in active_meetings
-        }
+        active_meetings = [
+            {"name": meeting.name, "id": meeting.id} for meeting in active_meetings
+        ]
 
         if not active_meetings:
             return func.HttpResponse("There are no active meetings", status_code=404)
         return func.HttpResponse(
-            dumps(active_meetings_dict), status_code=200, mimetype="application/json"
+            dumps({"activeMeetings": active_meetings}),
+            status_code=200,
+            mimetype="application/json",
         )
 
 
@@ -98,31 +100,34 @@ def post_dispatcher(request) -> Union[dict, None]:
 
     try:
         if model == Meeting:
-            post_meeting(request_body, request.method)
+            resource = post_meeting(request_body, request.method)
         elif model == Participant:
-            post_participant(request_body)
+            resource = post_participant(request_body)
         elif model == Label:
-            post_label(request_body)
+            resource = post_label(request_body)
     except SQLAlchemyError as e:
         session.rollback()
         return func.HttpResponse(str(e), status_code=422)
     push_db_file(db_file_metadata)
-    return func.HttpResponse("Resource successfully inserted", status_code=201)
+    return func.HttpResponse(
+        dumps({"name": resource.name, "id": resource.id}),
+        status_code=201,
+        mimetype="application/json",
+    )
 
 
 def post_meeting(request_body, request_method):
     date_format = "%B %d, %Y - %I:%M %p"
     current_time_str = datetime.now().strftime(date_format)
     meeting_date = datetime.strptime(current_time_str, date_format)
-    meeting_name = request_body.get("room_name")
+    room_name = request_body.get("roomName")
 
-    Meeting(meeting_name, meeting_date).insert()
-    inserted_meeting = (
-        session.query(Meeting).filter(Meeting.room_name == meeting_name).first()
-    )
+    Meeting(room_name, meeting_date).insert()
+    inserted_meeting = session.query(Meeting).filter(Meeting.name == room_name).first()
     add_participants_and_labels_to_meeting(
         inserted_meeting, request_body, request_method
     )
+    return session.query(Meeting).filter(Meeting.name == room_name).first()
 
 
 def add_participants_and_labels_to_meeting(meeting, request_body, request_method):
@@ -157,11 +162,13 @@ def add_participants_and_labels_to_meeting(meeting, request_body, request_method
 def post_participant(request_body):
     name = request_body.get("name")
     Participant(name).insert()
+    return session.query(Participant).filter(Participant.name == name).first()
 
 
 def post_label(request_body):
     name = request_body.get("name")
     Label(name).insert()
+    return session.query(Label).filter(Label.name == name).first()
 
 
 def delete_dispatcher(request) -> Union[dict, None]:
@@ -218,10 +225,10 @@ def patch_label(resource, request_body):
 
 
 def patch_meeting(resource, request_body, request_method):
-    resource.room_name = request_body.get("room_name", resource.room_name)
+    resource.name = request_body.get("roomName", resource.name)
     resource.link = request_body.get("link", resource.link)
 
-    if request_body.get("ending_flag", None):
+    if request_body.get("endingFlag", None):
         date_format = "%B %d, %Y - %I:%M %p"
         current_time_str = datetime.now().strftime(date_format)
         date_ended = datetime.strptime(current_time_str, date_format)
