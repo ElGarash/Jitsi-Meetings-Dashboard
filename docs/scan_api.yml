@@ -16,7 +16,7 @@ endpoints:
         path: meetings
         method: post
         body:
-           room_name: ScanAPI Room 2
+           roomName: ScanAPI Room 2
            participants: ['Noor', 'Ahmed']
            labels: ['DevOps']
       - name: insert_participant
@@ -33,8 +33,8 @@ endpoints:
         path: meetings/1
         method: patch
         body:
-           room_name: "ScanAPI Room 3"
-           ending_flag: true
+           roomName: "ScanAPI Room 3"
+           endingFlag: true
            participants: ['Mark', 'John']
            labels: ['Frontend', 'Backend']
       - name: patch_participant
