@@ -30,5 +30,5 @@ Any requests to the API must be authorized, authentication is performed with [**
 
 ## Backend API Documentation
 
-![Function Endpoints](/docs/images/api-documentation.png)
 The documentation report is generated with [ScanAPI](https://github.com/scanapi/scanapi) library and the report can be found [here](https://refined-github-html-preview.kidonng.workers.dev/ElGarash/meetings/raw/functions-documentation/docs/scanapi-report.html).
+![Function Endpoints](/docs/images/api-documentation.png)
