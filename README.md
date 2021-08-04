@@ -1,6 +1,6 @@
-# Meetings 
+# Meetings
 
-![continuous deployment status](https://github.com/elgarash/meetings/actions/workflows/continuous-deployment.yml/badge.svg)[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads)
+![continuous deployment status](https://github.com/elgarash/meetings/actions/workflows/continuous-deployment.yml/badge.svg) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads)
 
 A serverless meetings application with a dashboard hosted on GitHub Pages.
 
@@ -30,5 +30,5 @@ Any requests to the API must be authorized, authentication is performed with [**
 
 ## Backend API Documentation
 
-The documentation report is generated with [ScanAPI](https://github.com/scanapi/scanapi) library and the report can be found [here](https://refined-github-html-preview.kidonng.workers.dev/ElGarash/meetings/raw/functions-documentation/docs/scanapi-report.html).
+The documentation report is generated with [ScanAPI](https://github.com/scanapi/scanapi) library and the report can be found [here](https://refined-github-html-preview.kidonng.workers.dev/ElGarash/meetings/raw/main/docs/scanapi-report.html).
 ![Function Endpoints](/docs/images/api-documentation.png)
