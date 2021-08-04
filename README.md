@@ -26,9 +26,9 @@ Backend uses **PyGitHub** library which is used to access the GitHub REST API, a
 
 GitHub Pages uses **sql.js-httpvfs** which is used to perform SQL queries to read from the database hosted at GitHub Pages.
 
-Any requests to the API must be authorized, authentication is performed with a third-party library [**Auth0**](https://auth0.com)
+Any requests to the API must be authorized, authentication is performed with [**Auth0**](https://auth0.com).
 
 ## Backend API Documentation
 
-![Function Endpoints](https://i.ibb.co/kcsTzbw/11512196-8323e3a96a4ddec0e6ffb2a98a8d3031.png)
+![Function Endpoints](/docs/images/api-documentation.png)
 The documentation report is generated with [ScanAPI](https://github.com/scanapi/scanapi) library and the report can be found [here](https://refined-github-html-preview.kidonng.workers.dev/ElGarash/meetings/raw/functions-documentation/docs/scanapi-report.html).
