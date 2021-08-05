@@ -23,31 +23,25 @@
         <button id="dashboard" class="underlineHover hide">dashboard</button>
     </div>
 
-    <div id="home" class="meeting">
+    <div id="home" class="home">
         <h2 id="hello-message" class="hide">
             Hi! <br>
             You need to LOGIN to Enter the meeting.
         </h2>
         
-        
-        <div id="room-list" class="rooms hide">
+        <dive id="room" class="room hide"></dive>
+        <div id="room-list" class="room-list hide">
             <form id="create-room" >
                 
-                <label for="roomName" class="room-name">
-                    room name<span style="font-size: 20px; color: #c9206f;">*</span>
-                </label>
-                <input type="text" name="roomName" id="roomName" 
-                class="room-name" required placeholder="Room name">
-                
-                <label for="roomLabels" class="room-name">
-                    meating labels: <span style="font-size: 20px; color: #c9206f;">*</span>
+                <label id="" for="roomLabels" class="label">
+                    meeting labels: <span style="font-size: 20px; color: #c9206f;">*</span>
                 </label>
                 <input type="text" name="roomLabels" id="roomLabels" 
-                class="room-name" required placeholder="Label1, Label2">
-                
+                class="textLabels" required placeholder="Label1, Label2">
                 <button id="create-meeting" class="underlineHover " onclick="createMeeting()">create room</button>
+                <dive id="rooms"></dive>
             </form>
-
+            
         </div>
 
     </div>
