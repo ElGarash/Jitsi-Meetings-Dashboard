@@ -1,24 +1,20 @@
-@import url("https://fonts.googleapis.com/css?family=Poppins");
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
 
 /* BASIC */
 
-html {
-    background-color: #212b2d;
-}
-
 body {
-    font-family: "Poppins", sans-serif;
-    height: 100vh;
+    font-family: "Quicksand";
+    background-color: #161b22;
 }
 
-h1 {
+/* h1 {
     text-align: center;
     font-size: 16px;
     font-weight: 600;
     display: inline-block;
     text-transform: uppercase;
     color: #cccccc;
-}
+} */
 
 /* Simple CSS3 Fade-in Animation */
 .underlineHover:after {
@@ -27,7 +23,7 @@ h1 {
     bottom: -10px;
     width: 0;
     height: 2px;
-    background-color: #56baed;
+    background-color: #0084ff;
     content: "";
     transition: width 0.2s;
 }
@@ -36,25 +32,53 @@ h1 {
     cursor: pointer;
 }
 
-.underlineHover:hover:after {
+.underlineHover:hover::after{
     width: 100%;
 }
 
-.log-btn {
-    background-color: #034063;
+button {
+    background-color: #032828;
     border: none;
-    color: white;
-    padding: 10px 35px;
+    color: #e1eaf3;
+    padding: 10px 25px;
     margin: 10px 10px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     text-transform: uppercase;
-    font-size: 13px;
+    font-size: 16px;
+    border-radius: 5px 5px 5px 5px;
 }
 
-#log-dev {
-    background-color: #0b75b3;
+.meeting {
+    width: 100%;
+    height: 54em;
+    color: #fafafa;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    overflow-y: auto;
+}
+
+#hello-message {
+    margin-top: 15em;
+}
+
+
+.shadow:focus {
+    outline: none;
+}
+
+.shadow {
+    -webkit-box-shadow: 0 10px 30px 0 rgba(255, 255, 255, 0.4);
+    box-shadow: 0 10px 30px 0 rgba(95, 186, 233, 0.4);
+    border-radius: 5px 5px 5px 5px;
+    -webkit-border-radius: 5px 5px 5px 5px;
+}
+
+.navbar{
+    background-color: #0084ff;
     display: flex;
     align-items: center;
     justify-content: right;
@@ -62,37 +86,36 @@ h1 {
     min-height: 6%;
 }
 
-.meeting {
-    width: 100%;
-    height: 93%;
+button:hover {
+    color: #0084ff;
+    
+}
+
+/* room previews / list */
+.room-name {
+    padding: 10px 16px;
+    margin: 20px 10px;
+    border-bottom: 1px solid #25c7b9;
+}
+.room-name:hover {
+    box-shadow: 1px 3px 5px rgba(240,240,240,0.4);
+}
+.room-name h2 {
+    font-size: 20px;
     color: #fafafa;
-    text-align: center;
+    margin-bottom: 8px;
+}
+
+.room-name a{
     text-decoration: none;
-    display: inline-block;
 }
 
-#login-request {
-    margin-top: 15em;
+.hide{
+    display: none;
 }
 
-#labels {
-    width: 45em;
-    height: 2em;
-    background-color: #b7c7d1;
-    font-size: 16px;
-    font-weight: 600;
-
-    display: inline-block;
-    color: #293849;
-}
-
-.shadow:focus {
-    outline: none;
-}
-
-.shadow {
-    -webkit-box-shadow: 0 10px 30px 0 rgba(95, 186, 233, 0.4);
-    box-shadow: 0 10px 30px 0 rgba(95, 186, 233, 0.4);
-    -webkit-border-radius: 5px 5px 5px 5px;
-    border-radius: 5px 5px 5px 5px;
+.room-list {
+    margin-top: 10%;
+    box-shadow: 1px 3px 5px rgba(12, 11, 11, 0.603);
+    border-radius: 10px 10px 10px 10px;
 }
