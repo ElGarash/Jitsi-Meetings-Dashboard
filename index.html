@@ -13,27 +13,43 @@
 
 
 
-    <div id="log-dev" class="wrapper shadow">
-        <input type="text" id="labels" class="shadow" style="display: none;"
-            placeholder="Label1, Label2">
-        <button id="btn-end-stream" class="log-btn underlineHover shadow" style="display: none;" onclick="endStream()"> End 
-            Stream</button>
-
-        <button id="btn-start-stream" class="log-btn underlineHover shadow" style="display: none;" onclick="startStream()">Start 
-            Stream</button>
-        <button id="btn-call-api" class="log-btn underlineHover shadow" style="display: none;" onclick="callApi()">Call
-            Api</button>
-        <button id="btn-logout" class="log-btn underlineHover shadow" style="display: none;" onclick="logout()">Log
-            out</button>
-        <button id="btn-login" class="log-btn underlineHover shadow" style="display: none;" onclick="login()">Log
-            in</button>
+    <div id="log-dev" class="navbar shadow  ">
+        <button id="login" class="underlineHover hide" onclick="login()">login</button>
+        <button id="logout", class="underlineHover hide" onclick="logout()">logout</button>
+        <button id="send-participants" class="underlineHover hide" onclick="sendParticipants()">send participants</button>
+        <button id="start-streaming" class="underlineHover hide" onclick="startStream()">start streaming</button></button>
+        <button id="end-streaming" class="underlineHover hide" onclick="endStream()">end streaming</button>
+        <button id= "close-meeting" class="underlineHover hide" onclick="closeRoom()">close meeting</button>
+        <button id="dashboard" class="underlineHover hide">dashboard</button>
     </div>
 
-    <div id="meet" class="meeting">
-        <h2 id="login-request" style="display: none;">
+    <div id="home" class="meeting">
+        <h2 id="hello-message" class="hide">
             Hi! <br>
             You need to LOGIN to Enter the meeting.
         </h2>
+        
+        
+        <div id="room-list" class="rooms hide">
+            <form id="create-room" >
+                
+                <label for="roomName" class="room-name">
+                    room name<span style="font-size: 20px; color: #c9206f;">*</span>
+                </label>
+                <input type="text" name="roomName" id="roomName" 
+                class="room-name" required placeholder="Room name">
+                
+                <label for="roomLabels" class="room-name">
+                    meating labels: <span style="font-size: 20px; color: #c9206f;">*</span>
+                </label>
+                <input type="text" name="roomLabels" id="roomLabels" 
+                class="room-name" required placeholder="Label1, Label2">
+                
+                <button id="create-meeting" class="underlineHover " onclick="createMeeting()">create room</button>
+            </form>
+
+        </div>
+
     </div>
 
     <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
