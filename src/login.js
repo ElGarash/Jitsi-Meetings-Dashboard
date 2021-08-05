@@ -60,11 +60,7 @@ const configureClient = async () => {
  */
 const requireAuth = async (fn, targetUrl) => {
     const isAuthenticated = await auth0.isAuthenticated();
-    
-    if (isAuthenticated) {
-        return fn();
-    }
-    
+
     return login(targetUrl);
 };
 
@@ -103,6 +99,7 @@ const updateUI = async () => {
     window.end_streaming_btn = document.getElementById("end-streaming");
     window.dashboard_btn = document.getElementById("dashboard");
     window.close_meeting_btn = document.getElementById("close-meeting");
+    window.rooms = document.getElementById("rooms");
     
     if (isAuthenticated) {
         login_btn.classList.add("hide");
@@ -111,9 +108,7 @@ const updateUI = async () => {
         room_list.classList.remove("hide");
         
         getActiveRooms();
-        if(typeof api !== "undefined"){
-            }
-            
+
     } else {
         hello_message.classList.remove("hide");
         login_btn.classList.remove("hide");
@@ -131,24 +126,31 @@ const updateUI = async () => {
 };
 
 
-// TODO get the meeting_labels and room_name from the document forme
-// TODO add url to sendRequest function
-// ! I mixed betwean create meeting and start meeting
 const createMeeting = async () => {
 
-    // prevent default behavior of form
+    // * prevent default behavior of form
     document.getElementById("create-room").onsubmit = event => event.preventDefault();
 
-    const meeting_labels = document.getElementById("roomLabels").value.split(',');
-    const room_name = document.getElementById("roomName").value ;
+    const meeting_labels = document.getElementById("roomLabels").value;
+    const room_name = roomName();
+    console.log("room name:", room_name)
+
+    if(!meeting_labels){
+        console.log("file the text fields");
+        return;
+    }
 
     const url = "https://meetingtriggerapp.azurewebsites.net/dashboard/meetings";
     // * send request to database to store meeting
     const response = await sendRequest(url, "POST", {
         roomName: room_name,
-        labels: meeting_labels
+        labels: meeting_labels.split(',')
     });
 
+    if(response == undefined){
+        alert("No response from the server retry creat meeting")
+        return;
+    }
     // * call Jitsi api
     callJitsiAPI(room_name.replaceAll(' ', '_'));
     
@@ -163,14 +165,13 @@ const createMeeting = async () => {
     send_participants_btn.classList.remove("hide");
 
 
-    console.log(`API respons for start meeting: ${response}`);
+    console.log(`API response for start meeting: ${response}`);
 };
 
-// TODO add url to sendRequest function
 const sendParticipants = async () => {
 
     // * get participants names and labels of the meeting
-    const participants_names = api.getParticipantsInfo().map((p) => p.displayName);
+    const participants_names = await api.getParticipantsInfo().map((p) => p.displayName);
 
     if(!participants_names.length){
         alert("initialize meeting first");
@@ -181,18 +182,24 @@ const sendParticipants = async () => {
     const response = await sendRequest(url, "PATCH", 
     {participants: participants_names});
 
+    if(response == undefined){
+        alert("Server is unreachable right now pleas try again");
+    }
     console.log("send Participants response", response);
 
 };
 
 
-// TODO add url to sendRequest function
 const getActiveRooms = async () => {
     const url = "https://meetingtriggerapp.azurewebsites.net/dashboard/meetings"
     const response = await sendRequest(url, "GET", null);
     console.log("response from getActiveRooms", response["activeMeetings"])
 
-    const active_rooms = response["activeMeetings"].map((room) => room.name);
+    if(response == undefined){
+        alert("Server is unreachable right now pleas try agin");
+        return
+    }
+
     response["activeMeetings"].map(room => {
         const h2 = document.createElement("h2")
         h2.classList.add("room-name")
@@ -209,36 +216,46 @@ const getActiveRooms = async () => {
             send_participants_btn.classList.remove("hide");
         })
         
-        room_list.appendChild(h2);
+        rooms.appendChild(h2);
     })
     
 };
 
-
-// 
 const closeRoom = async () => {
-    const url = `https://meetingtriggerapp.azurewebsites.net/dashboard/meetings/${window.room_id}`;
-    const response = await sendRequest(url, "PATCH", 
-    {endingFlag: true});
+    if(typeof api === "undefined"){
+        alert("this feature works only if you are in a room");
+        return
+    }
+    delete window.api;
     
-    console.log("send Participants response", response);
+    getActiveRooms();
+
+    document.getElementById("room").innerHTML = '';
+    rooms.innerHTML = '';
+    room_list.classList.remove("hide");
+    start_streaming_btn.classList.add("hide");
+    send_participants_btn.classList.add("hide");
+    close_meeting_btn.classList.add("hide");
+    end_streaming_btn.classList.add("hide");
+    document.getElementById("room").classList.add("hide");
+
 };
 
 
 // * start video stream of the running meeting on YouTube
 const startStream = () => {
     
-    // * check if thier is a running meeting
+    // * check if their is a running meeting
     if(!api.getNumberOfParticipants()){
-        console.log("You can not start streaming without statring a meeting.")
+        console.log("You can not start streaming without starting a meeting.")
         return
     }
     
     api.executeCommand('startRecording', {
         mode: `stream`, //recording mode, either `file` or `stream`.
         shouldShare: true, //whether the recording should be shared with the participants or not. Only applies to certain jitsi meet deploys.
-        youtubeStreamKey: `8fx0-x8a3-jyr6-sp69-dmqw`, //the youtube stream key.
-        youtubeBroadcastID: `` //the youtube broacast ID.
+        youtubeStreamKey: `8fx0-x8a3-jyr6-sp69-dmqw`, //the YouTube stream key.
+        youtubeBroadcastID: `` //the YouTube broadcast ID.
     });
 
     start_streaming_btn.classList.add("hide");
@@ -265,7 +282,7 @@ const sendRequest = async (url, method, body) => {
         const token = await auth0.getTokenSilently();
         // Make the call to the API, setting the token
         // in the Authorization header
-        const respons = await fetch(url, {
+        const response = await fetch(url, {
             method: method,
             headers: {
                 "Content-type": "application/json;charset=UTF-8",
@@ -275,7 +292,7 @@ const sendRequest = async (url, method, body) => {
             body: body ? JSON.stringify(body) : undefined,
         });
 
-        response_data = await respons.json();
+        response_data = await response.json();
         
         return response_data;
     } catch (e) {
@@ -296,7 +313,7 @@ const callJitsiAPI = async (room_name) => {
         const options = {
             roomName: room_name,
             
-            parentNode: document.querySelector("#home"),
+            parentNode: document.querySelector("#room"),
             userInfo: {
                 displayName: user["name"],
             },
@@ -312,8 +329,9 @@ const callJitsiAPI = async (room_name) => {
         
         window.api = new JitsiMeetExternalAPI(domain, options);
 
-        window.participants = new Set(api.getParticipantsInfo().map((p) => p.displayName));
+        window.participants = new Set(api.getParticipantsInfo().map((p) => p.participantId));
         
+        document.getElementById("room").classList.remove("hide");
         // * handle room close when meeting is finished
         autoClose();
         
@@ -323,21 +341,35 @@ const callJitsiAPI = async (room_name) => {
     
 };
 
-// window.addEventListener('unload', function(event) {
-//     closeRoom();
-//     console.log('I am the 3rd one.');
-// });
-
-// @ send request to close the meeting and send the participants to database
-const autoClose = () => {
+const autoClose = async () => {
 
     api.addEventListener("participantJoined", (participant) => {
-        participants.add(participant.displayName);
+        participants.add(participant.id);
     });
 
-    api.addEventListener("participantLeft", () => {
-        if(participants.size > 1 && api.getParticipantsInfo().map((p) => p.displayName).length === 1){
-            closeRoom();
+    api.addEventListener("participantLeft", async (id) => {
+        if(participants.size > 0 && api.getNumberOfParticipants() === 1){
+
+            const url = `https://meetingtriggerapp.azurewebsites.net/dashboard/meetings/${window.room_id}`;
+            const response = await sendRequest(url, "PATCH", 
+            {endingFlag: true});
+            
+            console.log("send Participants response", response);
         }
     });
+};
+
+
+const roomName = () => {
+    // Declare all characters
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    // Pick characters randomly
+    let room_name = '';
+    for (let i = 0; i < 30; i++) {
+        room_name += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    return room_name;
+
 };
