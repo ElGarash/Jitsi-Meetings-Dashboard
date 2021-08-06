@@ -122,7 +122,6 @@ const updateUI = async () => {
 
     }
 
-
 };
 
 
@@ -147,14 +146,17 @@ const createMeeting = async () => {
         labels: meeting_labels.split(',')
     });
 
-    if(response == undefined){
-        alert("No response from the server retry creat meeting")
+    if(!response.ok){
+        alert("Error occurred please tray later")
         return;
     }
     // * call Jitsi api
-    callJitsiAPI(room_name.replaceAll(' ', '_'));
+    await callJitsiAPI(room_name.replaceAll(' ', '_'));
+    api.executeCommand('subject', meeting_labels);
     
-    window.room_id = response.id;
+    const response_data = await response.json();
+
+    window.room_id = response_data.id;
     console.log("room_id from createMeeting:", room_id);
 
     
@@ -165,13 +167,13 @@ const createMeeting = async () => {
     send_participants_btn.classList.remove("hide");
 
 
-    console.log(`API response for start meeting: ${response}`);
+    console.log(`API response for start meeting: ${response_data}`);
 };
 
 const sendParticipants = async () => {
 
     // * get participants names and labels of the meeting
-    const participants_names = await api.getParticipantsInfo().map((p) => p.displayName);
+    const participants_names = api.getParticipantsInfo().map((p) => p.displayName);
 
     if(!participants_names.length){
         alert("initialize meeting first");
@@ -179,34 +181,41 @@ const sendParticipants = async () => {
     }
 
     const url = `https://meetingtriggerapp.azurewebsites.net/dashboard/meetings/${window.room_id}`;
-    const response = await sendRequest(url, "PATCH", 
+    const response =  await sendRequest(url, "PATCH", 
     {participants: participants_names});
 
-    if(response == undefined){
+    if(!response.ok){
         alert("Server is unreachable right now pleas try again");
     }
-    console.log("send Participants response", response);
+    console.log("send Participants response", response.ok);
 
 };
 
 
 const getActiveRooms = async () => {
     const url = "https://meetingtriggerapp.azurewebsites.net/dashboard/meetings"
-    const response = await sendRequest(url, "GET", null);
-    console.log("response from getActiveRooms", response["activeMeetings"])
-
-    if(response == undefined){
+    
+    let response = await sendRequest(url, "GET", null);
+    while(!response.ok){
+        response = await sendRequest(url, "GET", null);
+        console.log("you had successfully fetched the data with response:", response.ok)
+    };
+    
+    const response_data = await response.json();
+    console.log("response from getActiveRooms", response_data["activeMeetings"])
+    
+    if(!response.ok){
         alert("Server is unreachable right now pleas try agin");
         return
     }
 
-    response["activeMeetings"].map(room => {
+    response_data["activeMeetings"].map(room => {
         const h2 = document.createElement("h2")
         h2.classList.add("room-name")
-        h2.textContent = room.name;
-        h2.addEventListener("click", () => {
-            callJitsiAPI(room.name);
-            
+        h2.textContent = room.labels.join(", ");
+        h2.addEventListener("click", async () => {
+            await callJitsiAPI(room.name);
+            api.executeCommand('subject', room.labels.join(", "));
             window.room_id = room.id;
             console.log("room_id from getActiveRooms:", room_id);
             
@@ -221,7 +230,7 @@ const getActiveRooms = async () => {
     
 };
 
-const closeRoom = async () => {
+const closeRoom = () => {
     if(typeof api === "undefined"){
         alert("this feature works only if you are in a room");
         return
@@ -292,9 +301,7 @@ const sendRequest = async (url, method, body) => {
             body: body ? JSON.stringify(body) : undefined,
         });
 
-        response_data = await response.json();
-        
-        return response_data;
+        return response;
     } catch (e) {
         // Display errors in the console
         console.error(e);
@@ -321,6 +328,12 @@ const callJitsiAPI = async (room_name) => {
                 startWithAudioMuted: false,
                 startWithVideoMuted: true,
                 requireDisplayName: true,
+
+                NATIVE_APP_NAME: 'ELgarash',
+                SHOW_JITSI_WATERMARK: true,
+                // DEFAULT_BACKGROUND: '#474747',
+                // DEFAULT_LOGO_URL: 'images/watermark.svg',
+                // DEFAULT_WELCOME_PAGE_LOGO_URL: 'images/watermark.svg',
             },
             interfaceConfigOverwrite: {
                 SHOW_CHROME_EXTENSION_BANNER: false,
@@ -341,20 +354,20 @@ const callJitsiAPI = async (room_name) => {
     
 };
 
-const autoClose = async () => {
+const autoClose = () => {
 
     api.addEventListener("participantJoined", (participant) => {
         participants.add(participant.id);
     });
 
-    api.addEventListener("participantLeft", async (id) => {
+    api.addEventListener("participantLeft", async (_) => {
         if(participants.size > 0 && api.getNumberOfParticipants() === 1){
 
             const url = `https://meetingtriggerapp.azurewebsites.net/dashboard/meetings/${window.room_id}`;
-            const response = await sendRequest(url, "PATCH", 
+            const response = sendRequest(url, "PATCH", 
             {endingFlag: true});
             
-            console.log("send Participants response", response);
+            // console.log("send Participants response", response);
         }
     });
 };
