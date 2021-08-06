@@ -16,43 +16,43 @@ endpoints:
         path: meetings
         method: post
         body:
-           roomName: ScanAPI Room 2
+           roomName: ScanAPI Room 100
            participants: ['Noor', 'Ahmed']
            labels: ['DevOps']
       - name: insert_participant
         path: participants
         method: post
         body:
-           name: Khaled
+           name: "Ahmed Khaled"
       - name: insert_label
         path: labels
         method: post
         body:
-          name: CI/CD
+          name: Kubernetes/Docker
       - name: patch_meeting
-        path: meetings/1
+        path: meetings/5
         method: patch
         body:
-           roomName: "ScanAPI Room 3"
+           roomName: "ScanAPI Room 99"
            endingFlag: true
            participants: ['Mark', 'John']
            labels: ['Frontend', 'Backend']
       - name: patch_participant
-        path: participants/1
+        path: participants/5
         method: patch
         body:
-           name: "Tony"
+           name: "Noor Eldeen Salah"
       - name: patch_label
-        path: labels/1
+        path: labels/5
         method: patch
         body:
-           name: "GCP"
+           name: "Containers"
       - name: delete_meeting
-        path: meetings/1
+        path: meetings/5
         method: delete
       - name: delete_participant
-        path: participants/1
+        path: participants/5
         method: delete
       - name: delete_label
-        path: labels/1
+        path: labels/5
         method: delete

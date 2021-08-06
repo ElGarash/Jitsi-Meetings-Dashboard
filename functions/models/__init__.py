@@ -88,7 +88,7 @@ class Meeting(BaseModel):
         session.commit()
 
     def __repr__(self):
-        return f"Meeting(id={self.id}, room_name={self.room_name}, date_started={self.date_started.strftime('%B %d, %Y - %I:%M %p')})"
+        return f"Meeting(id={self.id}, name={self.name}, date_started={self.date_started.strftime('%B %d, %Y - %I:%M %p')})"
 
 
 class Participant(BaseModel):
