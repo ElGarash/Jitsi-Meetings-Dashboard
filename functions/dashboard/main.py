@@ -25,16 +25,24 @@ def main(request: func.HttpRequest) -> func.HttpResponse:
     # Authentication and Authorization.
     token, token_err = get_token_from_auth_header(request)
     if token_err:
-        return func.HttpResponse(token_err.message, status_code=token_err.status_code)
+        return func.HttpResponse(
+            dumps({"message": token_err.message}),
+            status_code=token_err.status_code,
+            mimetype="application/json",
+        )
     payload, payload_err = verify_decode_jwt(token)
     if payload_err:
         return func.HttpResponse(
-            payload_err.message, status_code=payload_err.status_code
+            dumps({"message": payload_err.message}),
+            status_code=payload_err.status_code,
+            mimetype="application/json",
         )
     permissions_err = check_permissions(PERMISSION, payload)
     if permissions_err:
         return func.HttpResponse(
-            permissions_err.message, status_code=permissions_err.status_code
+            dumps({"message": permissions_err.message}),
+            status_code=permissions_err.status_code,
+            mimetype="application/json",
         )
 
     # Method dispatching.
@@ -46,29 +54,45 @@ def main(request: func.HttpRequest) -> func.HttpResponse:
         return patch_dispatcher(request)
     elif request.method == "POST":
         return post_dispatcher(request)
-    else:
-        return func.HttpResponse("Method not allowed", status_code=405)
 
 
 def get_dispatcher(request):
     GET_RESOURCES = ["secrets", "meetings"]
     resource = request.route_params.get("resources")
     if resource not in GET_RESOURCES:
-        return func.HttpResponse("Method Not Allowed", status_code=405)
+        return func.HttpResponse(
+            dumps({"message": "Method Not Allowed"}),
+            status_code=405,
+            mimetype="application/json",
+        )
 
     elif resource == "secrets":
         secret_type = request.params.get("type", None)
         if secret_type is None:
-            return func.HttpResponse("Bad Request", status_code=400)
+            return func.HttpResponse(
+                dumps({"message": "Bad Request"}),
+                status_code=400,
+                mimetype="application/json",
+            )
         secret = getenv(secret_type.upper(), None)
         if secret:
-            return func.HttpResponse(secret, status_code=200)
+            return func.HttpResponse(
+                dumps({"secret": secret}), status_code=200, mimetype="application/json"
+            )
         else:
-            return func.HttpResponse("Secret not found", status_code=404)
+            return func.HttpResponse(
+                dumps({"message": "Secret not found"}),
+                status_code=404,
+                mimetype="application/json",
+            )
 
     elif resource == "meetings":
         if request.route_params.get("id", None):
-            return func.HttpResponse("Method Not Allowed", status_code=405)
+            return func.HttpResponse(
+                dumps({"message": "Method Not Allowed"}),
+                status_code=405,
+                mimetype="application/json",
+            )
 
         clone_db_file()
         active_meetings = (
@@ -90,7 +114,11 @@ def get_dispatcher(request):
         ]
 
         if not active_meetings:
-            return func.HttpResponse("There are no active meetings", status_code=404)
+            return func.HttpResponse(
+                dumps({"message": "There are no active meetings"}),
+                status_code=404,
+                mimetype="application/json",
+            )
         return func.HttpResponse(
             dumps({"activeMeetings": active_meetings}),
             status_code=200,
@@ -104,7 +132,11 @@ def post_dispatcher(request) -> Union[dict, None]:
 
     resource = request.route_params.get("resources", None)
     if not resource or request.route_params.get("id", None):
-        return func.HttpResponse("Bad request", status_code=400)
+        return func.HttpResponse(
+            dumps({"message": "Bad request"}),
+            status_code=400,
+            mimetype="application/json",
+        )
 
     request_body = request.get_json()
     model = RESOURCE_TO_MODEL_MAPPER[resource]
@@ -118,13 +150,11 @@ def post_dispatcher(request) -> Union[dict, None]:
             resource = post_label(request_body)
     except SQLAlchemyError as e:
         session.rollback()
-        return func.HttpResponse(str(e), status_code=422)
+        return func.HttpResponse(
+            dumps({"message": str(e)}), status_code=422, mimetype="application/json"
+        )
     push_db_file(db_file_metadata)
-    return func.HttpResponse(
-        dumps({"name": resource.name, "id": resource.id}),
-        status_code=201,
-        mimetype="application/json",
-    )
+    return format_return_body(resource)
 
 
 def post_meeting(request_body, request_method):
@@ -148,8 +178,10 @@ def add_participants_and_labels_to_meeting(meeting, request_body, request_method
     db_labels = [label.name.casefold() for label in session.query(Label).all()]
 
     if request_method == "PATCH":
-        meeting.participants.clear()
-        meeting.labels.clear()
+        if request_body.get("participants"):
+            meeting.participants.clear()
+        if request_body.get("labels"):
+            meeting.labels.clear()
 
     for participant in request_body.get("participants", []):
         if participant.casefold() not in db_participants:
@@ -187,18 +219,50 @@ def delete_dispatcher(request) -> Union[dict, None]:
     resource = request.route_params.get("resources", None)
     resource_id = request.route_params.get("id", None)
     if resource not in DELETE_RESOURCES or not resource_id:
-        return func.HttpResponse("Bad request", status_code=400)
+        return func.HttpResponse(
+            dumps({"message": "Bad request"}),
+            status_code=400,
+            mimetype="application/json",
+        )
 
     model = RESOURCE_TO_MODEL_MAPPER[resource]
     db_file_metadata = clone_db_file()
     resource = session.get(model, resource_id)
 
     if resource is None:
-        return func.HttpResponse("Resource doesn't exist", status_code=404)
+        return func.HttpResponse(
+            dumps({"message": "Resource doesn't exist"}),
+            status_code=404,
+            mimetype="application/json",
+        )
     resource.delete()
 
     push_db_file(db_file_metadata)
-    return func.HttpResponse("Successfully deleted the resource", status_code=200)
+    return func.HttpResponse(
+        dumps({"message": "Successfully deleted the resource"}),
+        status_code=200,
+        mimetype="application/json",
+    )
+
+
+def format_return_body(resource):
+    if isinstance(resource, Meeting):
+        return_body = {
+            "id": resource.id,
+            "name": resource.name,
+            "date_started": str(resource.date_started),
+            "date_ended": str(resource.date_ended),
+            "link": resource.link,
+            "participants": [participant.name for participant in resource.participants],
+            "labels": [label.name for label in resource.labels],
+        }
+    else:
+        return_body = {"id": resource.id, "name": resource.name}
+    return func.HttpResponse(
+        dumps(return_body),
+        status_code=201,
+        mimetype="application/json",
+    )
 
 
 def patch_dispatcher(request) -> Union[dict, None]:
@@ -206,33 +270,44 @@ def patch_dispatcher(request) -> Union[dict, None]:
     resource = request.route_params.get("resources", None)
     resource_id = request.route_params.get("id", None)
     if resource not in PATCH_RESOURCES or not resource_id:
-        return func.HttpResponse("Bad request", status_code=400)
+        return func.HttpResponse(
+            dumps({"message": "Bad request"}),
+            status_code=400,
+            mimetype="application/json",
+        )
 
     request_body = request.get_json()
     model = RESOURCE_TO_MODEL_MAPPER[resource]
     db_file_metadata = clone_db_file()
     resource = session.get(model, resource_id)
     if resource is None:
-        return func.HttpResponse("Resource doesn't exist", status_code=404)
+        return func.HttpResponse(
+            dumps({"message": "Resource doesn't exist"}),
+            status_code=404,
+            mimetype="application/json",
+        )
 
     try:
         if model == Meeting:
-            patch_meeting(resource, request_body, request.method)
+            resource = patch_meeting(resource, request_body, request.method)
         elif model == Participant:
-            patch_participant(resource, request_body)
+            resource = patch_participant(resource, request_body)
         elif model == Label:
-            patch_label(resource, request_body)
+            resource = patch_label(resource, request_body)
     except SQLAlchemyError as e:
         session.rollback()
-        return func.HttpResponse(str(e), status_code=422)
+        return func.HttpResponse(
+            dumps({"message": str(e)}), status_code=422, mimetype="application/json"
+        )
 
     push_db_file(db_file_metadata)
-    return func.HttpResponse("Successfully updated the resource", status_code=200)
+    return format_return_body(resource)
 
 
 def patch_label(resource, request_body):
     resource.name = request_body.get("name", resource.name)
     resource.update()
+    return resource
 
 
 def patch_meeting(resource, request_body, request_method):
@@ -247,8 +322,10 @@ def patch_meeting(resource, request_body, request_method):
 
     add_participants_and_labels_to_meeting(resource, request_body, request_method)
     resource.update()
+    return resource
 
 
 def patch_participant(resource, request_body):
     resource.name = request_body.get("name", resource.name)
     resource.update()
+    return resource
