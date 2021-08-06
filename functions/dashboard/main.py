@@ -75,7 +75,18 @@ def get_dispatcher(request):
             session.query(Meeting).filter(Meeting.date_ended == None).all()
         )
         active_meetings = [
-            {"name": meeting.name, "id": meeting.id} for meeting in active_meetings
+            {
+                "id": meeting.id,
+                "name": meeting.name,
+                "date_started": str(meeting.date_started),
+                "date_ended": str(meeting.date_ended),
+                "link": meeting.link,
+                "participants": [
+                    participant.name for participant in meeting.participants
+                ],
+                "labels": [label.name for label in meeting.labels],
+            }
+            for meeting in active_meetings
         ]
 
         if not active_meetings:
