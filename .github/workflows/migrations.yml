@@ -1,0 +1,27 @@
+name: check-for-migrations
+on:
+  push:
+    paths:
+      - 'migrations/versions/**'
+jobs:
+  apply-migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: gh-pages
+      # Get migrations required files from main.
+      - run: git fetch origin main  # main branch will be available as FETCH_HEAD.
+      - run: git checkout FETCH_HEAD functions/models migrations alembic.ini
+      # Apply Migrations
+      - uses: actions/setup-python@v2
+      - run: pip install alembic
+      - run: alembic upgrade head
+      # Commit and push changes.
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git rm -rf functions/models migrations alembic.ini  # Remove the files because git checkout automatically stages them.
+          git add database.db
+          git commit -m "Trigger database migrations action"
+          git push
