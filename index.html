@@ -1,53 +1,91 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Meeting</title>
+        <script src="https://meet.jit.si/external_api.js"></script>
+        <link rel="stylesheet" type="text/css" href="/style/login.css" />
+    </head>
 
-<head>
-    <meta charset="UTF-8" />
-    <title>Meeting</title>
-    <script src="https://meet.jit.si/external_api.js"></script>
-    <link rel="stylesheet" type="text/css" href="/style/login.css" />
-</head>
-
-<body>
-
-
-
-
-    <div id="log-dev" class="navbar shadow  ">
-        <button id="login" class="underlineHover hide" onclick="login()">login</button>
-        <button id="logout", class="underlineHover hide" onclick="logout()">logout</button>
-        <button id="send-participants" class="underlineHover hide" onclick="sendParticipants()">send participants</button>
-        <button id="start-streaming" class="underlineHover hide" onclick="startStream()">start streaming</button></button>
-        <button id="end-streaming" class="underlineHover hide" onclick="endStream()">end streaming</button>
-        <button id= "close-meeting" class="underlineHover hide" onclick="closeRoom()">close meeting</button>
-        <button id="dashboard" class="underlineHover hide">dashboard</button>
-    </div>
-
-    <div id="home" class="home">
-        <h2 id="hello-message" class="hide">
-            Hi! <br>
-            You need to LOGIN to Enter the meeting.
-        </h2>
-        
-        <dive id="room" class="room hide"></dive>
-        <div id="room-list" class="room-list hide">
-            <form id="create-room" >
-                
-                <label id="" for="roomLabels" class="label">
-                    meeting labels: <span style="font-size: 20px; color: #c9206f;">*</span>
-                </label>
-                <input type="text" name="roomLabels" id="roomLabels" 
-                class="textLabels" required placeholder="Label1, Label2">
-                <button id="create-meeting" class="underlineHover " onclick="createMeeting()">create room</button>
-                <dive id="rooms"></dive>
-            </form>
-            
+    <body>
+        <div id="log-dev" class="navbar shadow">
+            <button id="login" class="underlineHover hide" onclick="login()">
+                login
+            </button>
+            <button
+                id="logout"
+                class="underlineHover hide"
+                onclick="logout()"
+            >
+                logout
+            </button>
+            <button
+                id="send-participants"
+                class="underlineHover hide"
+                onclick="sendParticipants()"
+            >
+                send participants
+            </button>
+            <button
+                id="start-streaming"
+                class="underlineHover hide"
+                onclick="startStream()"
+            >
+                start streaming
+            </button>
+            <button
+                id="end-streaming"
+                class="underlineHover hide"
+                onclick="endStream()"
+            >
+                end streaming
+            </button>
+            <button
+                id="close-meeting"
+                class="underlineHover hide"
+                onclick="closeRoom()"
+            >
+                close meeting
+            </button>
+            <button id="dashboard" class="underlineHover hide">
+                dashboard
+            </button>
         </div>
 
-    </div>
+        <div id="home" class="home">
+            <h2 id="hello-message" class="hide">
+                Hi! <br />
+                You need to LOGIN to Enter the meeting.
+            </h2>
 
-    <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
-    <script src="/src/login.js"></script>
-</body>
+            <dive id="room" class="room hide"></dive>
+            <div id="room-list" class="room-list hide">
+                <form id="create-room">
+                    <label id="" for="roomLabels" class="label">
+                        meeting labels:
+                        <span style="font-size: 20px; color: #c9206f">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="roomLabels"
+                        id="roomLabels"
+                        class="textLabels"
+                        required
+                        placeholder="Label1, Label2"
+                    />
+                    <button
+                        id="create-meeting"
+                        class="underlineHover"
+                        onclick="createMeeting()"
+                    >
+                        create room
+                    </button>
+                    <dive id="rooms"></dive>
+                </form>
+            </div>
+        </div>
 
+        <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
+        <script src="/src/login.js"></script>
+    </body>
 </html>
