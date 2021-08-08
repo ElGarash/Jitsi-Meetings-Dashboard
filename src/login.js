@@ -4,22 +4,23 @@ let auth0 = null;
 // * Starts the authentication flow
 // TODO: change the @App_REDIRECT_URI to work on the website
 const APP_REDIRECT_URI = window.location.origin;
-const login = async (targetUrl) => {};
-try {
-    console.log("Logging in", targetUrl);
+const login = async (targetUrl) => {
+    try {
+        console.log("Logging in", targetUrl);
 
-    const options = {
-        redirect_uri: APP_REDIRECT_URI,
-    };
+        const options = {
+            redirect_uri: APP_REDIRECT_URI,
+        };
 
-    if (targetUrl) {
+        if (targetUrl) {
         options.appState = { targetUrl };
-    }
+        }
 
-    await auth0.loginWithRedirect(options);
-} catch (err) {
-    console.log("Log in failed", err);
-}
+        await auth0.loginWithRedirect(options);
+    } catch (err) {
+        console.log("Log in failed", err);
+    }
+};
 
 // * Executes the logout flow
 
@@ -374,3 +375,9 @@ const roomName = () => {
 
     return room_name;
 };
+
+const sum = () => {
+    return 1+2;
+};
+
+module.exports = sum;

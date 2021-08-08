@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap");
 
 /* BASIC */
 
@@ -6,15 +6,6 @@ body {
     font-family: "Quicksand";
     background-color: #161b22;
 }
-
-/* h1 {
-    text-align: center;
-    font-size: 16px;
-    font-weight: 600;
-    display: inline-block;
-    text-transform: uppercase;
-    color: #cccccc;
-} */
 
 /* Simple CSS3 Fade-in Animation */
 .underlineHover:after {
@@ -32,7 +23,7 @@ body {
     cursor: pointer;
 }
 
-.underlineHover:hover::after{
+.underlineHover:hover::after {
     width: 100%;
 }
 
@@ -76,7 +67,6 @@ button {
     margin-top: 15em;
 }
 
-
 .shadow:focus {
     outline: none;
 }
@@ -88,7 +78,7 @@ button {
     -webkit-border-radius: 5px 5px 5px 5px;
 }
 
-.navbar{
+.navbar {
     background-color: #0084ff;
     display: flex;
     align-items: center;
@@ -99,7 +89,6 @@ button {
 
 button:hover {
     color: #0084ff;
-    
 }
 
 /* room previews / list */
@@ -109,16 +98,18 @@ button:hover {
     background-color: #566879e5;
     border-radius: 10px 10px 10px 10px;
 }
+
 .room-name:hover {
-    box-shadow: 1px 3px 5px rgba(240,240,240,0.4);
+    box-shadow: 1px 3px 5px rgba(240, 240, 240, 0.4);
     cursor: pointer;
 }
+
 .room-name h2 {
     color: #0084ff;
     margin-bottom: 8px;
 }
 
-.hide{
+.hide {
     display: none;
 }
 
@@ -141,5 +132,4 @@ button:hover {
     background-color: inherit;
     color: ivory;
     margin-left: 10px;
-    
 }
