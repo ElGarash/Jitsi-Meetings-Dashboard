@@ -18,7 +18,7 @@ const login = async (targetUrl) => {
     
         await auth0.loginWithRedirect(options);
     } catch (err) {
-        console.log("Log in failed", err);
+        alert("Log in failed", err);
     }
 };
 
