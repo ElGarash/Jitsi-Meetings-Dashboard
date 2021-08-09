@@ -4,22 +4,23 @@ let auth0 = null;
 // * Starts the authentication flow
 // TODO: change the @App_REDIRECT_URI to work on the website
 const APP_REDIRECT_URI = window.location.origin;
-const login = async (targetUrl) => {};
-try {
-    console.log("Logging in", targetUrl);
-
-    const options = {
-        redirect_uri: APP_REDIRECT_URI,
-    };
-
-    if (targetUrl) {
-        options.appState = { targetUrl };
+const login = async (targetUrl) => {
+    try {
+        console.log("Logging in", targetUrl);
+    
+        const options = {
+            redirect_uri: APP_REDIRECT_URI,
+        };
+    
+        if (targetUrl) {
+            options.appState = { targetUrl };
+        }
+    
+        await auth0.loginWithRedirect(options);
+    } catch (err) {
+        alert("Log in failed", err);
     }
-
-    await auth0.loginWithRedirect(options);
-} catch (err) {
-    console.log("Log in failed", err);
-}
+};
 
 // * Executes the logout flow
 
@@ -30,7 +31,7 @@ const logout = () => {
             returnTo: APP_REDIRECT_URI,
         });
     } catch (err) {
-        console.log("Log out failed", err);
+        alert("Log out failed", err);
     }
 };
 
@@ -96,7 +97,7 @@ const updateUI = async () => {
     window.start_streaming_btn = document.getElementById("start-streaming");
     window.end_streaming_btn = document.getElementById("end-streaming");
     window.dashboard_btn = document.getElementById("dashboard");
-    window.close_meeting_btn = document.getElementById("close-meeting");
+    window.close_meeting_btn = document.getElementById("leave-room");
     window.rooms = document.getElementById("rooms");
 
     if (isAuthenticated) {
@@ -104,7 +105,6 @@ const updateUI = async () => {
         hello_message.classList.add("hide");
         logout_btn.classList.remove("hide");
         room_list.classList.remove("hide");
-
         getActiveRooms();
     } else {
         hello_message.classList.remove("hide");
@@ -129,7 +129,7 @@ const createMeeting = async () => {
     console.log("room name:", room_name);
 
     if (!meeting_labels) {
-        console.log("file the text fields");
+        alert("It is not allowable to start meeting with no labels");
         return;
     }
 
@@ -138,7 +138,7 @@ const createMeeting = async () => {
     // * send request to database to store meeting
     const response = await sendRequest(url, "POST", {
         roomName: room_name,
-        labels: meeting_labels.split(","),
+        labels: meeting_labels.split(','),
     });
 
     if (!response.ok) {
@@ -146,7 +146,7 @@ const createMeeting = async () => {
         return;
     }
     // * call Jitsi api
-    await callJitsiAPI(room_name.replaceAll(" ", "_"));
+    await callJitsiAPI(room_name.replaceAll(' ', '_'));
     api.executeCommand("subject", meeting_labels);
 
     const response_data = await response.json();
@@ -187,14 +187,17 @@ const sendParticipants = async () => {
 const getActiveRooms = async () => {
     const url =
         "https://meetingtriggerapp.azurewebsites.net/dashboard/meetings";
-
-    let response = await sendRequest(url, "GET", null);
-    while (!response.ok) {
+    let response;
+    try{
         response = await sendRequest(url, "GET", null);
-        console.log(
-            "you had successfully fetched the data with response:",
-            response.ok
-        );
+        console.log("ok!!!!!!!!")
+    }catch{
+        try{
+            response = await sendRequest(url, "GET", null); 
+            console.log("ok!")
+        }catch{
+            alert("Network error while loading active rooms pleas reload the page.")
+        }
     }
 
     const response_data = await response.json();
@@ -203,10 +206,6 @@ const getActiveRooms = async () => {
         response_data["activeMeetings"]
     );
 
-    if (!response.ok) {
-        alert("Server is unreachable right now pleas try agin");
-        return;
-    }
 
     response_data["activeMeetings"].map((room) => {
         const h2 = document.createElement("h2");
@@ -234,7 +233,7 @@ const getActiveRooms = async () => {
     });
 };
 
-const closeRoom = () => {
+const leaveRoom = () => {
     if (typeof api === "undefined") {
         alert("this feature works only if you are in a room");
         return;
@@ -257,7 +256,7 @@ const closeRoom = () => {
 const startStream = () => {
     // * check if their is a running meeting
     if (!api.getNumberOfParticipants()) {
-        console.log("You can not start streaming without starting a meeting.");
+        alert("You can not start streaming without starting a meeting.");
         return;
     }
 
@@ -362,7 +361,8 @@ const autoClose = () => {
             const url = `https://meetingtriggerapp.azurewebsites.net/dashboard/meetings/${window.room_id}`;
             const response = sendRequest(url, "PATCH", { endingFlag: true });
 
-            // console.log("send Participants response", response);
+            if(!response.ok){alert("Network error while sending participants please try again.");}
+            
         }
     });
 };
