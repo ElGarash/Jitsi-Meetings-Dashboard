@@ -211,7 +211,12 @@ const getActiveRooms = async () => {
         const h2 = document.createElement("h2");
         const labels = room.labels.join(", ")
         h2.classList.add("room-name");
-        h2.textContent = labels;
+        if(labels){
+            h2.textContent = labels;
+        }else{
+            h2.style.color = "#936874";
+            h2.textContent = "No labels!";
+        }
         h2.addEventListener("click", async () => {
             await callJitsiAPI(room.name);
             api.executeCommand("subject", room.labels.join(", "));
