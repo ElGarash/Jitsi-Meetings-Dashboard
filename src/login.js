@@ -96,7 +96,7 @@ const updateUI = async () => {
     window.start_streaming_btn = document.getElementById("start-streaming");
     window.end_streaming_btn = document.getElementById("end-streaming");
     window.dashboard_btn = document.getElementById("dashboard");
-    window.close_meeting_btn = document.getElementById("close-meeting");
+    window.close_meeting_btn = document.getElementById("leave-room");
     window.rooms = document.getElementById("rooms");
 
     if (isAuthenticated) {
@@ -228,7 +228,7 @@ const getActiveRooms = async () => {
     });
 };
 
-const closeRoom = () => {
+const leaveRoom = () => {
     if (typeof api === "undefined") {
         alert("this feature works only if you are in a room");
         return;
