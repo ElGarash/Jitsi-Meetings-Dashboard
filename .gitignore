@@ -129,3 +129,8 @@ obj
 appsettings.json
 local.settings.json
 .python_packages
+.DS_Store
+node_modules
+/build
+/.svelte-kit
+/package
