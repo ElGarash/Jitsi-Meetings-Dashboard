@@ -2,7 +2,7 @@
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
 	import { getContext } from 'svelte';
-	import { participants, labels } from '../utils/stores';
+	import { meetings } from '../utils/stores';
 
 	const { close } = getContext('simple-modal');
 
@@ -13,19 +13,19 @@
 
 	const { form, errors, handleChange, handleSubmit, isValid, isSubmitting } = createForm({
 		initialValues: {
-			name: resourceType == 'participants' ? $participants[index].name : $labels[index].name
+			roomName: $meetings[index].name,
+			link: $meetings[index].link,
+			endingFlag: Boolean($meetings[index].date_ended)
 		},
 		validationSchema: yup.object().shape({
-			name: yup.string().required()
+			roomName: yup.string().required(),
+			link: yup.string().url(),
+			endingFlag: yup.boolean()
 		}),
 		onSubmit: () => {
 			return formMethod(resourceId, resourceType, $form)
 				.then((response) => {
-					if (resourceType == 'participants') {
-						$participants[index] = response.data;
-					} else {
-						$labels[index] = response.data;
-					}
+					$meetings[index] = response.data;
 					close();
 				})
 				.catch((error) => alert(error));
@@ -33,18 +33,41 @@
 	});
 </script>
 
-<h2>Edit {resourceType == 'participants' ? 'Participant' : 'Label'} Data</h2>
+<h2>Edit Meeting Data</h2>
+
 <form on:submit={handleSubmit}>
-	<label for="name">name</label>
+	<label for="roomName">Room Name</label>
 	<input
-		id="name"
-		name="name"
+		name="roomName"
 		on:change={handleChange}
 		on:blur={handleChange}
-		bind:value={$form.name}
+		bind:value={$form.roomName}
 	/>
-	{#if $errors.name}
-		<small>{$errors.name}</small>
+	{#if $errors.roomName}
+		<small>{$errors.roomName}</small>
+	{/if}
+
+	<label for="link">YouTube link</label>
+	<input
+		type="url"
+		name="link"
+		on:change={handleChange}
+		on:blur={handleChange}
+		bind:value={$form.link}
+	/>
+	{#if $errors.link}
+		<small>{$errors.link}</small>
+	{/if}
+
+	{#if !$meetings[index].date_ended}
+		<label for="endingFlag">End Meeting</label>
+		<input
+			type="checkbox"
+			name="endingFlag"
+			on:change={handleChange}
+			on:blur={handleChange}
+			bind:checked={$form.endingFlag}
+		/>
 	{/if}
 
 	<button type="submit" disabled={!$isValid}>
@@ -56,7 +79,6 @@
 	</button>
 </form>
 
-<!-- Some CSS I stole from the template -->
 <style>
 	:root {
 		--primary-light: #a6f9d6;

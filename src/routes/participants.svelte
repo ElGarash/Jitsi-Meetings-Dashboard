@@ -6,14 +6,14 @@
 	import { modal } from '../utils/stores';
 	import { bind } from 'svelte-simple-modal';
 	import requests from '../utils/requests';
-	import Form from '../components/Form.svelte';
+	import ParticipantsLabelsForm from '../components/ParticipantsLabelsForm.svelte';
 	import FormModal from '../components/FormModal.svelte';
 
 	onMount(() => load('SELECT * FROM participant').then((values) => participants.set(values)));
 
 	let handleEdit = (event, index) => {
 		modal.set(
-			bind(Form, {
+			bind(ParticipantsLabelsForm, {
 				index: index,
 				resourceId: event.target.attributes['data-id'].value,
 				resourceType: event.target.attributes['data-type'].value,
