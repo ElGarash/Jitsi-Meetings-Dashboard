@@ -21,6 +21,21 @@
 			})
 		);
 	};
+
+	let handleDelete = (event) => {
+		// A UI optimization would be to use a modal form to confirm but I might not make it for now.
+		let deleteConfirmation = confirm('Are you sure you want to delete this record?');
+		if (deleteConfirmation) {
+			let resourceId = event.target.attributes['data-id'].value;
+			let resourceType = event.target.attributes['data-type'].value;
+			requests
+				.deleteResource(resourceId, resourceType)
+				.then(() => {
+					participants.set($participants.filter((element) => element.id != resourceId));
+				})
+				.catch((error) => alert(error));
+		}
+	};
 </script>
 
 <Datatable settings={$settings} data={$participants}>
@@ -44,6 +59,7 @@
 						data-id={id}
 						on:click={(event, index = i) => handleEdit(event, index)}>Edit</button
 					>
+					<button data-type="participants" data-id={id} on:click={handleDelete}>Delete</button>
 				</td>
 			</tr>
 		{/each}
