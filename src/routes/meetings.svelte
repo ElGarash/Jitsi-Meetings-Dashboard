@@ -2,14 +2,14 @@
 	import { onMount } from 'svelte';
 	import { Datatable, rows } from 'svelte-simple-datatables';
 	import { meetings, settings } from '../utils/stores';
-	import load from '../utils/query';
+	import query from '../utils/query';
 	import { modal } from '../utils/stores';
 	import { bind } from 'svelte-simple-modal';
 	import requests from '../utils/requests';
-	import MeetingsForm from '../components/MeetingsForm.svelte';
-	import FormModal from '../components/FormModal.svelte';
+	import MeetingsForm from '../components/form/MeetingsForm.svelte';
+	import FormModal from '../components/form/FormModal.svelte';
 
-	onMount(() => load('SELECT * FROM meeting').then((values) => meetings.set(values)));
+	onMount(() => query('SELECT * FROM meeting').then((values) => meetings.set(values)));
 
 	let handleEdit = (event, index) => {
 		modal.set(
@@ -21,6 +21,7 @@
 			})
 		);
 	};
+
 	let handleDelete = (event) => {
 		// A UI optimization would be to use a modal form to confirm but I might not make it for now.
 		let deleteConfirmation = confirm('Are you sure you want to delete this record?');

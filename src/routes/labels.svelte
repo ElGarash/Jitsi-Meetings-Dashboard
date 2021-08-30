@@ -2,14 +2,14 @@
 	import { onMount } from 'svelte';
 	import { Datatable, rows } from 'svelte-simple-datatables';
 	import { labels, settings } from '../utils/stores';
-	import load from '../utils/query';
+	import query from '../utils/query';
 	import { modal } from '../utils/stores';
 	import { bind } from 'svelte-simple-modal';
 	import requests from '../utils/requests';
-	import ParticipantsLabelsForm from '../components/ParticipantsLabelsForm.svelte';
-	import FormModal from '../components/FormModal.svelte';
+	import ParticipantsLabelsForm from '../components/form/ParticipantsLabelsForm.svelte';
+	import FormModal from '../components/form/FormModal.svelte';
 
-	onMount(() => load('SELECT * FROM label').then((values) => labels.set(values)));
+	onMount(() => query('SELECT * FROM label').then((values) => labels.set(values)));
 
 	let handleEdit = (event, index) => {
 		modal.set(
@@ -35,7 +35,18 @@
 				.catch((error) => alert(error));
 		}
 	};
+
+	let handlePost = (event) => {
+		modal.set(
+			bind(ParticipantsLabelsForm, {
+				resourceType: event.target.attributes['data-type'].value,
+				formMethod: requests.postResource
+			})
+		);
+	};
 </script>
+
+<button data-type="labels" on:click={handlePost}> Add label </button>
 
 <Datatable settings={$settings} data={$labels}>
 	<thead>

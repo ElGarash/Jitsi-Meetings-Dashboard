@@ -3,7 +3,7 @@ import { createDbWorker } from 'sql.js-httpvfs';
 const workerUrl = 'sqlite.worker.js';
 const wasmUrl = 'sql-wasm.wasm';
 
-async function load(sqlQuery) {
+async function query(sqlQuery) {
 	const worker = await createDbWorker(
 		[
 			{
@@ -22,4 +22,4 @@ async function load(sqlQuery) {
 	return await worker.db.query(sqlQuery);
 }
 
-export default load;
+export default query;

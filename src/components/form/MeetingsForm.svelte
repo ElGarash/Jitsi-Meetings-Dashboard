@@ -2,7 +2,7 @@
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
 	import { getContext } from 'svelte';
-	import { meetings } from '../utils/stores';
+	import { meetings } from '../../utils/stores';
 
 	const { close } = getContext('simple-modal');
 

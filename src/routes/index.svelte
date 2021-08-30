@@ -1,11 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { participants } from '../utils/stores';
-
-	import load from '../utils/query';
-	onMount(() => {
-		load(`SELECT * FROM participant`).then((values) => participants.set(values));
-	});
+	let name = 'Noor';
 </script>
 
-<h2>Hello</h2>
+<h2>Hello {name}</h2>

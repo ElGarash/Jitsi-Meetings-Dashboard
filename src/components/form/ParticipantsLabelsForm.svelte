@@ -2,7 +2,7 @@
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
 	import { getContext } from 'svelte';
-	import { participants, labels } from '../utils/stores';
+	import { participants, labels } from '../../utils/stores';
 
 	const { close } = getContext('simple-modal');
 
@@ -11,24 +11,44 @@
 	export let resourceType;
 	export let formMethod;
 
+	function getInitialName() {
+		console.log(index);
+		if (index !== undefined) {
+			return resourceType == 'participants' ? $participants[index].name : $labels[index].name;
+		} else {
+			return '';
+		}
+	}
+
 	const { form, errors, handleChange, handleSubmit, isValid, isSubmitting } = createForm({
 		initialValues: {
-			name: resourceType == 'participants' ? $participants[index].name : $labels[index].name
+			name: getInitialName()
 		},
 		validationSchema: yup.object().shape({
 			name: yup.string().required()
 		}),
 		onSubmit: () => {
-			return formMethod(resourceId, resourceType, $form)
-				.then((response) => {
+			if (resourceId !== undefined) {
+				return formMethod(resourceId, resourceType, $form)
+					.then((response) => {
+						if (resourceType == 'participants') {
+							$participants[index] = response.data;
+						} else {
+							$labels[index] = response.data;
+						}
+						close();
+					})
+					.catch((error) => alert(error));
+			} else {
+				return formMethod(resourceType, $form).then((response) => {
 					if (resourceType == 'participants') {
-						$participants[index] = response.data;
+						$participants = [...$participants, response.data];
 					} else {
-						$labels[index] = response.data;
+						$labels = [...$labels, response.data];
 					}
 					close();
-				})
-				.catch((error) => alert(error));
+				});
+			}
 		}
 	});
 </script>

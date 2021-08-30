@@ -129,6 +129,7 @@ obj
 appsettings.json
 local.settings.json
 .python_packages
+.idea/
 .DS_Store
 node_modules
 /build
