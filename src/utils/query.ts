@@ -19,9 +19,7 @@ async function load(sqlQuery) {
 		wasmUrl.toString()
 	);
 
-	const result = await worker.db.query(sqlQuery);
-
-	document.body.textContent = JSON.stringify(result);
+	return await worker.db.query(sqlQuery);
 }
 
 export default load;
