@@ -1,6 +1,6 @@
-import { writable } from 'svelte/store';
+import { readable, writable } from 'svelte/store';
 import type { Writable } from 'svelte/store';
-import type { Participant, Label } from './types';
+import type { Participant, Label, Meeting } from './types';
 
 export const modal = writable(null);
 
@@ -8,6 +8,6 @@ export let participants: Writable<Array<Participant>> = writable([]);
 
 export let labels: Writable<Array<Label>> = writable([]);
 
-export let settings = writable({ columnFilter: true });
+export let meetings: Writable<Array<Meeting>> = writable([]);
 
-export let selected = writable(null);
+export const settings = readable({ columnFilter: true });

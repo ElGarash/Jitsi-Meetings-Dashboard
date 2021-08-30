@@ -9,7 +9,3 @@
 </script>
 
 <h2>Hello</h2>
-
-{#each $participants as participant}
-	{JSON.stringify(participant)}
-{/each}

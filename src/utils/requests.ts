@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-axios.defaults.headers.common['Authorization'] = `Bearer ${process.env.ACCESS_TOKEN}`;
+axios.defaults.headers.common['Authorization'] = `Bearer ${import.meta.env['VITE_ACCESS_TOKEN']}`;
 
 const baseUrl = 'https://meetingtriggerapp.azurewebsites.net/dashboard';
 
