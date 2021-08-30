@@ -16,43 +16,43 @@ endpoints:
         path: meetings
         method: post
         body:
-           roomName: ScanAPI Room 2
-           participants: ['Noor', 'Ahmed']
-           labels: ['DevOps']
+           roomName: ScanAPI Room 214
+           participants: ['Reda', 'Ezzat']
+           labels: ['RollupJS']
       - name: insert_participant
         path: participants
         method: post
         body:
-           name: Khaled
+           name: Ehab
       - name: insert_label
         path: labels
         method: post
         body:
-          name: CI/CD
+          name: Svelte
       - name: patch_meeting
-        path: meetings/1
+        path: meetings/4
         method: patch
         body:
-           roomName: "ScanAPI Room 3"
+           roomName: "ScanAPI Room 9"
            endingFlag: true
-           participants: ['Mark', 'John']
-           labels: ['Frontend', 'Backend']
+           participants: ['Medhat', 'Mahmoud']
+           labels: ['Sapper', 'SvelteKit']
       - name: patch_participant
         path: participants/1
         method: patch
         body:
-           name: "Tony"
+           name: "Samir"
       - name: patch_label
-        path: labels/1
+        path: labels/4
         method: patch
         body:
-           name: "GCP"
+           name: "ReactJS"
       - name: delete_meeting
-        path: meetings/1
+        path: meetings/4
         method: delete
       - name: delete_participant
-        path: participants/1
+        path: participants/4
         method: delete
       - name: delete_label
-        path: labels/1
+        path: labels/4
         method: delete
