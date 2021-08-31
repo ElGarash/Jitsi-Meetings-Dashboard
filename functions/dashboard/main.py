@@ -103,7 +103,7 @@ def get_dispatcher(request):
                 "id": meeting.id,
                 "name": meeting.name,
                 "date_started": str(meeting.date_started),
-                "date_ended": str(meeting.date_ended),
+                "date_ended": str(meeting.date_ended) if meeting.date_ended else "",
                 "link": meeting.link,
                 "participants": [
                     participant.name for participant in meeting.participants
@@ -251,7 +251,7 @@ def format_return_body(resource):
             "id": resource.id,
             "name": resource.name,
             "date_started": str(resource.date_started),
-            "date_ended": str(resource.date_ended),
+            "date_ended": str(resource.date_ended) if resource.date_ended else "",
             "link": resource.link,
             "participants": [participant.name for participant in resource.participants],
             "labels": [label.name for label in resource.labels],
