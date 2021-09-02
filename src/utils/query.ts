@@ -1,7 +1,7 @@
 import { createDbWorker } from 'sql.js-httpvfs';
 
-const workerUrl = 'sqlite.worker.js';
-const wasmUrl = 'sql-wasm.wasm';
+const workerUrl = '../sqlite.worker.js';
+const wasmUrl = '../sql-wasm.wasm';
 
 async function query(sqlQuery) {
 	const worker = await createDbWorker(

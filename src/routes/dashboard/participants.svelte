@@ -1,15 +1,18 @@
 <script lang="ts">
+	import type { Participant } from 'src/utils/types';
 	import { onMount } from 'svelte';
 	import { Datatable, rows } from 'svelte-simple-datatables';
-	import { participants, settings } from '../utils/stores';
-	import query from '../utils/query';
-	import { modal } from '../utils/stores';
+	import { participants, settings } from '../../utils/stores';
+	import query from '../../utils/query';
+	import { modal } from '../../utils/stores';
 	import { bind } from 'svelte-simple-modal';
-	import requests from '../utils/requests';
-	import ParticipantsLabelsForm from '../components/form/ParticipantsLabelsForm.svelte';
-	import FormModal from '../components/form/FormModal.svelte';
+	import requests from '../../utils/requests';
+	import ParticipantsLabelsForm from '../../components/form/ParticipantsLabelsForm.svelte';
+	import FormModal from '../../components/form/FormModal.svelte';
 
-	onMount(() => query('SELECT * FROM participant').then((values) => participants.set(values)));
+	onMount(() =>
+		query('SELECT * FROM participant').then((values: Participant[]) => participants.set(values))
+	);
 
 	let handleEdit = (event, index) => {
 		modal.set(
