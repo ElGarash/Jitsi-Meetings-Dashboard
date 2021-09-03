@@ -1,6 +1,11 @@
 import axios from 'axios';
+import { accessTokenStore } from '../utils/stores';
 
-axios.defaults.headers.common['Authorization'] = `Bearer ${import.meta.env['VITE_ACCESS_TOKEN']}`;
+let token;
+
+accessTokenStore.subscribe((value) => (token = value));
+
+axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
 const baseUrl = 'https://meetingtriggerapp.azurewebsites.net/dashboard';
 

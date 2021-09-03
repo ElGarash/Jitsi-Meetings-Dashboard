@@ -2,7 +2,7 @@
 	import type { Label } from 'src/utils/types';
 	import { onMount } from 'svelte';
 	import { Datatable, rows } from 'svelte-simple-datatables';
-	import { labels, settings } from '../../utils/stores';
+	import { isAuthenticated, labels, settings } from '../../utils/stores';
 	import query from '../../utils/query';
 	import { modal } from '../../utils/stores';
 	import { bind } from 'svelte-simple-modal';
@@ -47,37 +47,41 @@
 	};
 </script>
 
-<button data-type="labels" on:click={handlePost}> Add label </button>
+{#if $isAuthenticated}
+	<button data-type="labels" on:click={handlePost}> Add label </button>
 
-<Datatable settings={$settings} data={$labels}>
-	<thead>
-		<th data-key="id">ID</th>
-		<th data-key="name">Label</th>
-		<th>Actions</th>
-	</thead>
-	<tbody>
-		{#each $rows as { id, name }, i}
-			<tr>
-				<td>
-					{id}
-				</td>
-				<td>
-					{name}
-				</td>
-				<td>
-					<button
-						data-type="labels"
-						data-id={id}
-						on:click={(event, index = i) => handleEdit(event, index)}>Edit</button
-					>
-					<button data-type="labels" data-id={id} on:click={handleDelete}>Delete</button>
-				</td>
-			</tr>
-		{/each}
-	</tbody>
-</Datatable>
+	<Datatable settings={$settings} data={$labels}>
+		<thead>
+			<th data-key="id">ID</th>
+			<th data-key="name">Label</th>
+			<th>Actions</th>
+		</thead>
+		<tbody>
+			{#each $rows as { id, name }, i}
+				<tr>
+					<td>
+						{id}
+					</td>
+					<td>
+						{name}
+					</td>
+					<td>
+						<button
+							data-type="labels"
+							data-id={id}
+							on:click={(event, index = i) => handleEdit(event, index)}>Edit</button
+						>
+						<button data-type="labels" data-id={id} on:click={handleDelete}>Delete</button>
+					</td>
+				</tr>
+			{/each}
+		</tbody>
+	</Datatable>
 
-<FormModal />
+	<FormModal />
+{:else}
+	<h2>You must be authenticated to access the dashboard</h2>
+{/if}
 
 <style>
 	td {
