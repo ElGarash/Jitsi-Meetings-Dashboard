@@ -25,3 +25,6 @@ export const error = writable(null);
 export const accessTokenStore = persistentWritable(null, {
 	storage: sessionStorageAdapter('accessTokenStore')
 });
+
+// Jitsi stores
+export const selectingRoom = writable(true);

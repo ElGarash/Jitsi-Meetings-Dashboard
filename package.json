@@ -36,6 +36,7 @@
 		"svelte-forms-lib": "^1.10.6",
 		"svelte-persistent-writable": "^1.1.5",
 		"svelte-simple-modal": "^1.0.0",
+		"uuid": "^8.3.2",
 		"yup": "^0.32.9"
 	}
 }

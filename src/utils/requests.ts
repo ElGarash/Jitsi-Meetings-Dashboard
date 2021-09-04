@@ -9,20 +9,21 @@ axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
 const baseUrl = 'https://meetingtriggerapp.azurewebsites.net/dashboard';
 
-const deleteResource = (id, type) => {
-	const request = axios.delete(`${baseUrl}/${type}/${id}`);
-	return request.then((response) => response);
+export const deleteResource = (id, type) => {
+	return axios.delete(`${baseUrl}/${type}/${id}`);
 };
 
-const patchResource = (id, type, requestBody) => {
-	const request = axios.patch(`${baseUrl}/${type}/${id}`, requestBody);
-	return request.then((response) => response);
+export const patchResource = (id, type, requestBody) => {
+	return axios.patch(`${baseUrl}/${type}/${id}`, requestBody);
 };
 
-const postResource = (type, requestBody) => {
-	const request = axios.post(`${baseUrl}/${type}`, requestBody);
-	return request.then((response) => response);
+export const postResource = (type, requestBody) => {
+	return axios.post(`${baseUrl}/${type}`, requestBody);
 };
 
-const requests = { patchResource, deleteResource, postResource };
-export default requests;
+export const getActiveRooms = () => {
+	const request = axios.get(`${baseUrl}/meetings`);
+	return request
+		.then((response) => response.data)
+		.then((responseData) => responseData.activeMeetings);
+};

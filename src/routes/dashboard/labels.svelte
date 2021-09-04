@@ -6,7 +6,7 @@
 	import query from '../../utils/query';
 	import { modal } from '../../utils/stores';
 	import { bind } from 'svelte-simple-modal';
-	import requests from '../../utils/requests';
+	import { deleteResource, patchResource, postResource } from '../../utils/requests';
 	import ParticipantsLabelsForm from '../../components/form/ParticipantsLabelsForm.svelte';
 	import FormModal from '../../components/form/FormModal.svelte';
 
@@ -18,7 +18,7 @@
 				index: index,
 				resourceId: event.target.attributes['data-id'].value,
 				resourceType: event.target.attributes['data-type'].value,
-				formMethod: requests.patchResource
+				formMethod: patchResource
 			})
 		);
 	};
@@ -28,8 +28,7 @@
 		if (deleteConfirmation) {
 			let resourceId = event.target.attributes['data-id'].value;
 			let resourceType = event.target.attributes['data-type'].value;
-			requests
-				.deleteResource(resourceId, resourceType)
+			deleteResource(resourceId, resourceType)
 				.then(() => {
 					labels.set($labels.filter((element) => element.id != resourceId));
 				})
@@ -41,7 +40,7 @@
 		modal.set(
 			bind(ParticipantsLabelsForm, {
 				resourceType: event.target.attributes['data-type'].value,
-				formMethod: requests.postResource
+				formMethod: postResource
 			})
 		);
 	};

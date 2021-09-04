@@ -18,7 +18,7 @@
 	});
 </script>
 
-<nav>
+<header>
 	<div>
 		{#if $isAuthenticated}
 			<button on:click={logout}>Logout</button>
@@ -26,5 +26,6 @@
 			<button on:click={login}>Login</button>
 		{/if}
 	</div>
-</nav>
+</header>
+<hr />
 <slot />
