@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { error, user, selectingRoom } from '../../utils/stores';
-	import { patchResource, getActiveRooms, postResource } from '../../utils/requests';
+	import { userInfo, selectingRoom, authToken } from '../../utils/stores';
+	import { patchResource } from '../../utils/requests';
 
 	export let currentRoomID;
 	export let meetingLabels;
@@ -20,7 +20,7 @@
 
 			parentNode: document.getElementById('meeting'),
 			userInfo: {
-				displayName: $user['name']
+				displayName: $userInfo['name']
 			},
 			configOverwrite: {
 				startWithAudioMuted: false,
@@ -37,8 +37,8 @@
 
 				api.addEventListener('participantLeft', async () => {
 					if (participants.size > 0 && api.getNumberOfParticipants() === 1) {
-						patchResource(currentRoomID, 'meetings', { endingFlag: true }).catch((error) =>
-							alert(error)
+						patchResource(currentRoomID, 'meetings', { endingFlag: true }, $authToken).catch(
+							(error) => alert(error)
 						);
 					}
 				});
@@ -78,8 +78,8 @@
 	const sendParticipants = () => {
 		let participant_names = api.getParticipantsInfo().map((p) => p.displayName);
 
-		patchResource(currentRoomID, 'meetings', { participants: participant_names }).catch((error) =>
-			alert(error)
+		patchResource(currentRoomID, 'meetings', { participants: participant_names }, $authToken).catch(
+			(error) => alert(error)
 		);
 	};
 

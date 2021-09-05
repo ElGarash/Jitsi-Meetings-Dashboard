@@ -14,16 +14,23 @@ export const settings = readable({ columnFilter: true });
 export const isAuthenticated = persistentWritable(false, {
 	storage: sessionStorageAdapter('isAuthenticated')
 });
-export const user = persistentWritable(null, {
-	storage: sessionStorageAdapter('user')
-});
-export const popupOpen = persistentWritable(false, {
-	storage: sessionStorageAdapter('popupOpen')
-});
-export const error = writable(null);
 
-export const accessTokenStore = persistentWritable(null, {
-	storage: sessionStorageAdapter('accessTokenStore')
+export const isLoading = persistentWritable(true, {
+	storage: sessionStorageAdapter('isLoading')
+});
+export const userInfo = persistentWritable(
+	{},
+	{
+		storage: sessionStorageAdapter('userInfo')
+	}
+);
+
+export const authError = persistentWritable(null, {
+	storage: sessionStorageAdapter('authError')
+});
+
+export const authToken = persistentWritable('', {
+	storage: sessionStorageAdapter('authToken')
 });
 
 // Jitsi stores

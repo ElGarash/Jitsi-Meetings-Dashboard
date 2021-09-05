@@ -2,7 +2,7 @@
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
 	import { getContext } from 'svelte';
-	import { meetings } from '../../utils/stores';
+	import { authToken, meetings } from '../../utils/stores';
 
 	const { close } = getContext('simple-modal');
 
@@ -23,7 +23,7 @@
 			endingFlag: yup.boolean()
 		}),
 		onSubmit: () => {
-			return formMethod(resourceId, resourceType, $form)
+			return formMethod(resourceId, resourceType, $form, $authToken)
 				.then((response) => {
 					$meetings[index] = response.data;
 					close();

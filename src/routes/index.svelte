@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { isAuthenticated } from '../utils/stores';
 	import Jitsi from '../components/meeting/Jitsi.svelte';
-	import { selectingRoom } from '../utils/stores';
+	import { selectingRoom, isAuthenticated, authToken } from '../utils/stores';
 	import { getActiveRooms, postResource } from '../utils/requests';
 	import { v4 as uuidv4 } from 'uuid';
 
@@ -18,7 +17,7 @@
 
 	let createMeeting = () => {
 		roomName = uuidv4();
-		postResource('meetings', { roomName, labels: meetingLabels.split(', ') })
+		postResource('meetings', { roomName, labels: meetingLabels.split(', ') }, $authToken)
 			.then((response) => {
 				currentRoomID = response.data.id;
 			})
@@ -27,10 +26,10 @@
 	};
 </script>
 
-{#if $isAuthenticated}
+{#if $isAuthenticated && $authToken}
 	{#if $selectingRoom}
 		<div>
-			{#await getActiveRooms() then activeRooms}
+			{#await getActiveRooms($authToken) then activeRooms}
 				<form on:submit|preventDefault={() => createMeeting()}>
 					<input placeholder="Label1, Label2" bind:value={meetingLabels} />
 					<input type="submit" value="Create Room" />
@@ -49,4 +48,6 @@
 	{:else}
 		<Jitsi {currentRoomID} {meetingLabels} {roomName} />
 	{/if}
+{:else}
+	<h2>Please sign in to continue</h2>
 {/if}

@@ -1,28 +1,29 @@
 import axios from 'axios';
-import { accessTokenStore } from '../utils/stores';
-
-let token;
-
-accessTokenStore.subscribe((value) => (token = value));
-
-axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
 const baseUrl = 'https://meetingtriggerapp.azurewebsites.net/dashboard';
 
-export const deleteResource = (id, type) => {
-	return axios.delete(`${baseUrl}/${type}/${id}`);
+export const deleteResource = (id, type, accessToken) => {
+	return axios.delete(`${baseUrl}/${type}/${id}`, {
+		headers: { Authorization: `Bearer ${accessToken}` }
+	});
 };
 
-export const patchResource = (id, type, requestBody) => {
-	return axios.patch(`${baseUrl}/${type}/${id}`, requestBody);
+export const patchResource = (id, type, requestBody, accessToken) => {
+	return axios.patch(`${baseUrl}/${type}/${id}`, requestBody, {
+		headers: { Authorization: `Bearer ${accessToken}` }
+	});
 };
 
-export const postResource = (type, requestBody) => {
-	return axios.post(`${baseUrl}/${type}`, requestBody);
+export const postResource = (type, requestBody, accessToken) => {
+	return axios.post(`${baseUrl}/${type}`, requestBody, {
+		headers: { Authorization: `Bearer ${accessToken}` }
+	});
 };
 
-export const getActiveRooms = () => {
-	const request = axios.get(`${baseUrl}/meetings`);
+export const getActiveRooms = (accessToken) => {
+	const request = axios.get(`${baseUrl}/meetings`, {
+		headers: { Authorization: `Bearer ${accessToken}` }
+	});
 	return request
 		.then((response) => response.data)
 		.then((responseData) => responseData.activeMeetings);

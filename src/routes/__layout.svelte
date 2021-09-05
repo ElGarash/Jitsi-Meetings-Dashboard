@@ -1,31 +1,22 @@
-<script lang="ts">
-	import { onMount } from 'svelte';
+<script>
+	import { createAuth } from '../utils/authentication';
 	import { isAuthenticated } from '../utils/stores';
-	import auth from '../utils/authentication';
 
-	let auth0Client;
-
-	function login() {
-		auth.loginWithPopup(auth0Client);
-	}
-
-	function logout() {
-		auth.logout(auth0Client);
-	}
-
-	onMount(async () => {
-		auth0Client = await auth.createClient();
+	const { login, logout } = createAuth({
+		domain: 'elgarash.us.auth0.com',
+		client_id: 'vV2NGwEyc9tL75dBW9017SBR8oqhAzWA',
+		audience: 'AzureServerlessFunction'
 	});
 </script>
 
 <header>
 	<div>
 		{#if $isAuthenticated}
-			<button on:click={logout}>Logout</button>
+			<button on:click={() => logout()}>Logout</button>
 		{:else}
-			<button on:click={login}>Login</button>
+			<button on:click={() => login()}>Login</button>
 		{/if}
 	</div>
 </header>
-<hr />
+
 <slot />

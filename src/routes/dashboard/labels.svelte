@@ -2,7 +2,7 @@
 	import type { Label } from 'src/utils/types';
 	import { onMount } from 'svelte';
 	import { Datatable, rows } from 'svelte-simple-datatables';
-	import { isAuthenticated, labels, settings } from '../../utils/stores';
+	import { isAuthenticated, labels, settings, authToken } from '../../utils/stores';
 	import query from '../../utils/query';
 	import { modal } from '../../utils/stores';
 	import { bind } from 'svelte-simple-modal';
@@ -28,7 +28,7 @@
 		if (deleteConfirmation) {
 			let resourceId = event.target.attributes['data-id'].value;
 			let resourceType = event.target.attributes['data-type'].value;
-			deleteResource(resourceId, resourceType)
+			deleteResource(resourceId, resourceType, $authToken)
 				.then(() => {
 					labels.set($labels.filter((element) => element.id != resourceId));
 				})

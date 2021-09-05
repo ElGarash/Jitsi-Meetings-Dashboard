@@ -4,7 +4,7 @@
 	import { Datatable, rows } from 'svelte-simple-datatables';
 	import { meetings, settings, isAuthenticated } from '../../utils/stores';
 	import query from '../../utils/query';
-	import { modal } from '../../utils/stores';
+	import { modal, authToken } from '../../utils/stores';
 	import { bind } from 'svelte-simple-modal';
 	import { patchResource, deleteResource } from '../../utils/requests';
 	import MeetingsForm from '../../components/form/MeetingsForm.svelte';
@@ -29,7 +29,7 @@
 		if (deleteConfirmation) {
 			let resourceId = event.target.attributes['data-id'].value;
 			let resourceType = event.target.attributes['data-type'].value;
-			deleteResource(resourceId, resourceType)
+			deleteResource(resourceId, resourceType, $authToken)
 				.then(() => {
 					meetings.set($meetings.filter((element) => element.id != resourceId));
 				})

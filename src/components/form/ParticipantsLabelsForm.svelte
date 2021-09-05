@@ -2,7 +2,7 @@
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
 	import { getContext } from 'svelte';
-	import { participants, labels } from '../../utils/stores';
+	import { participants, labels, authToken } from '../../utils/stores';
 
 	const { close } = getContext('simple-modal');
 
@@ -29,7 +29,7 @@
 		}),
 		onSubmit: () => {
 			if (resourceId !== undefined) {
-				return formMethod(resourceId, resourceType, $form)
+				return formMethod(resourceId, resourceType, $form, $authToken)
 					.then((response) => {
 						if (resourceType == 'participants') {
 							$participants[index] = response.data;
@@ -40,7 +40,7 @@
 					})
 					.catch((error) => alert(error));
 			} else {
-				return formMethod(resourceType, $form).then((response) => {
+				return formMethod(resourceType, $form, $authToken).then((response) => {
 					if (resourceType == 'participants') {
 						$participants = [...$participants, response.data];
 					} else {
