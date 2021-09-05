@@ -2,6 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { userInfo, selectingRoom, authToken } from '../../utils/stores';
 	import { patchResource } from '../../utils/requests';
+	import { goto } from '$app/navigation';
 
 	export let currentRoomID;
 	export let meetingLabels;
@@ -41,6 +42,10 @@
 							(error) => alert(error)
 						);
 					}
+				});
+
+				api.addEventListener('videoConferenceLeft', () => {
+					goto(window.location.origin + '/outro');
 				});
 			}
 		};
