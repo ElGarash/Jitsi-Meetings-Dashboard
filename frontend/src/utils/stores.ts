@@ -12,25 +12,25 @@ export const settings = readable({ columnFilter: true });
 
 // Auth0 stores
 export const isAuthenticated = persistentWritable(false, {
-	storage: sessionStorageAdapter('isAuthenticated')
+  storage: sessionStorageAdapter('isAuthenticated')
 });
 
 export const isLoading = persistentWritable(true, {
-	storage: sessionStorageAdapter('isLoading')
+  storage: sessionStorageAdapter('isLoading')
 });
 export const userInfo = persistentWritable(
-	{},
-	{
-		storage: sessionStorageAdapter('userInfo')
-	}
+  {},
+  {
+    storage: sessionStorageAdapter('userInfo')
+  }
 );
 
 export const authError = persistentWritable(null, {
-	storage: sessionStorageAdapter('authError')
+  storage: sessionStorageAdapter('authError')
 });
 
 export const authToken = persistentWritable('', {
-	storage: sessionStorageAdapter('authToken')
+  storage: sessionStorageAdapter('authToken')
 });
 
 // Jitsi stores

@@ -12,8 +12,8 @@
 	},
 	"devDependencies": {
 		"@sveltejs/kit": "next",
-		"@typescript-eslint/eslint-plugin": "^4.30.0",
-		"@typescript-eslint/parser": "^4.30.0",
+		"@typescript-eslint/eslint-plugin": "^4.31.0",
+		"@typescript-eslint/parser": "^4.31.0",
 		"eslint": "^7.32.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-svelte3": "^3.2.0",
@@ -21,7 +21,7 @@
 		"prettier-plugin-svelte": "^2.4.0",
 		"svelte": "^3.42.4",
 		"svelte-check": "^2.2.5",
-		"svelte-preprocess": "^4.8.0",
+		"svelte-preprocess": "^4.9.1",
 		"svelte-simple-datatables": "github:vincjo/svelte-simple-datatables",
 		"tslib": "^2.3.1",
 		"typescript": "^4.4.2"
@@ -30,12 +30,12 @@
 	"dependencies": {
 		"@auth0/auth0-spa-js": "^1.17.1",
 		"@sveltejs/adapter-static": "^1.0.0-next.17",
-		"axios": "^0.21.1",
+		"axios": "^0.21.4",
 		"rollup-plugin-copy": "^3.4.0",
 		"sql.js-httpvfs": "^0.8.11",
 		"svelte-forms-lib": "^1.10.6",
 		"svelte-persistent-writable": "^1.1.5",
-		"svelte-simple-modal": "^1.0.0",
+		"svelte-simple-modal": "^1.0.2",
 		"uuid": "^8.3.2",
 		"yup": "^0.32.9"
 	}
