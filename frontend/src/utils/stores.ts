@@ -35,3 +35,6 @@ export const authToken = persistentWritable('', {
 
 // Jitsi stores
 export const selectingRoom = writable(true);
+export const currentRoomID = writable(null)
+export const meetingLabels = writable("")
+export const roomName = writable("")

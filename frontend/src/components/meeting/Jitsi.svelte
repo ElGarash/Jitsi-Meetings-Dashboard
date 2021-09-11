@@ -1,12 +1,15 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { userInfo, selectingRoom, authToken } from '../../utils/stores';
+  import {
+    userInfo,
+    selectingRoom,
+    authToken,
+    currentRoomID,
+    meetingLabels,
+    roomName
+  } from '../../utils/stores';
   import { patchResource } from '../../utils/requests';
   import { goto } from '$app/navigation';
-
-  export let currentRoomID;
-  export let meetingLabels;
-  export let roomName;
 
   let api;
   let streamingStatus = false;
@@ -38,7 +41,7 @@
 
         api.addEventListener('participantLeft', async () => {
           if (participants.size > 0 && api.getNumberOfParticipants() === 1) {
-            patchResource(currentRoomID, 'meetings', { endingFlag: true }, $authToken).catch(
+            patchResource($currentRoomID, 'meetings', { endingFlag: true }, $authToken).catch(
               (error) => alert(error)
             );
           }
@@ -50,11 +53,11 @@
       }
     };
     api = new JitsiMeetExternalAPI(domain, options);
-    api.executeCommand('subject', meetingLabels);
+    api.executeCommand('subject', $meetingLabels);
   }
 
   onMount(() => {
-    startMeeting(roomName);
+    startMeeting($roomName);
   });
 
   onDestroy(() => {
@@ -83,15 +86,20 @@
   const sendParticipants = () => {
     let participant_names = api.getParticipantsInfo().map((p) => p.displayName);
 
-    patchResource(currentRoomID, 'meetings', { participants: participant_names }, $authToken).catch(
-      (error) => alert(error)
-    );
+    patchResource(
+      $currentRoomID,
+      'meetings',
+      { participants: participant_names },
+      $authToken
+    ).catch((error) => alert(error));
   };
 
   const leaveRoom = () => {
     if (api) {
       selectingRoom.set(true);
+      meetingLabels.set(null);
       api.dispose();
+      goto(window.location.origin);
     }
   };
 </script>
