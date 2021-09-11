@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Jitsi from '../components/meeting/Jitsi.svelte';
   import {
     selectingRoom,
     isAuthenticated,

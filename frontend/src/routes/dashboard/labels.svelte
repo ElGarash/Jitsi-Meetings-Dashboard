@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Label } from '../../utils/types';
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { Datatable, rows } from 'svelte-simple-datatables';
   import { isAuthenticated, labels, settings, authToken } from '../../utils/stores';
   import query from '../../utils/query';
@@ -11,6 +11,8 @@
   import FormModal from '../../components/form/FormModal.svelte';
 
   onMount(() => query('SELECT * FROM label').then((values: Label[]) => labels.set(values)));
+  
+  onDestroy(() => modal.set(null));
 
   let handleEdit = (event, index) => {
     modal.set(

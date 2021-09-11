@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Participant } from '../../utils/types';
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { Datatable, rows } from 'svelte-simple-datatables';
   import { participants, settings, isAuthenticated, authToken } from '../../utils/stores';
   import query from '../../utils/query';
@@ -13,6 +13,8 @@
   onMount(() =>
     query('SELECT * FROM participant').then((values: Participant[]) => participants.set(values))
   );
+
+  onDestroy(() => modal.set(null));
 
   let handleEdit = (event, index) => {
     modal.set(
