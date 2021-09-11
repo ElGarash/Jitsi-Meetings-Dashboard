@@ -1,4 +1,5 @@
 <script>
+  import { goto } from '$app/navigation';
   import { createAuth } from '../utils/authentication';
   import { isAuthenticated } from '../utils/stores';
 
@@ -16,6 +17,8 @@
     {:else}
       <button on:click={() => login()}>Login</button>
     {/if}
+
+    <button on:click={() => goto('/dashboard')}>Dashboard</button>
   </div>
 </header>
 
