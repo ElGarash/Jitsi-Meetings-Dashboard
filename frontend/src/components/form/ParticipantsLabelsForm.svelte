@@ -12,7 +12,6 @@
   export let formMethod;
 
   function getInitialName() {
-    console.log(index);
     if (index !== undefined) {
       return resourceType == 'participants' ? $participants[index].name : $labels[index].name;
     } else {
@@ -53,7 +52,10 @@
   });
 </script>
 
-<h2>Edit {resourceType == 'participants' ? 'Participant' : 'Label'} Data</h2>
+<h2>
+  {resourceId ? 'Edit' : 'Add'}
+  {resourceType == 'participants' ? 'Participant' : 'Label'} Data
+</h2>
 
 <form on:submit={handleSubmit}>
   <label for="name">name</label>
