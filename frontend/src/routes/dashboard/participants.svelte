@@ -51,22 +51,25 @@
 
 {#if $isAuthenticated}
   <button data-type="participants" on:click={handlePost}> Add participant </button>
-
-  <Datatable settings={$settings} data={$participants}>
-    <thead>
-      <th data-key="id">ID</th>
-      <th data-key="name">Name</th>
+{/if}
+<Datatable settings={$settings} data={$participants}>
+  <thead>
+    <th data-key="id">ID</th>
+    <th data-key="name">Name</th>
+    {#if $isAuthenticated}
       <th>Actions</th>
-    </thead>
-    <tbody>
-      {#each $rows as { id, name }, i}
-        <tr>
-          <td>
-            {id}
-          </td>
-          <td>
-            {name}
-          </td>
+    {/if}
+  </thead>
+  <tbody>
+    {#each $rows as { id, name }, i}
+      <tr>
+        <td>
+          {id}
+        </td>
+        <td>
+          {name}
+        </td>
+        {#if $isAuthenticated}
           <td>
             <button
               data-type="participants"
@@ -75,15 +78,13 @@
             >
             <button data-type="participants" data-id={id} on:click={handleDelete}>Delete</button>
           </td>
-        </tr>
-      {/each}
-    </tbody>
-  </Datatable>
+        {/if}
+      </tr>
+    {/each}
+  </tbody>
+</Datatable>
 
-  <FormModal />
-{:else}
-  <h2>You must be authenticated to access the dashboard</h2>
-{/if}
+<FormModal />
 
 <style>
   td {

@@ -38,34 +38,36 @@
   };
 </script>
 
-{#if $isAuthenticated}
-  <Datatable settings={$settings} data={$meetings}>
-    <thead>
-      <th data-key="id">ID</th>
-      <th data-key="name">Name</th>
-      <th data-key="date_started">Start date</th>
-      <th data-key="date_ended">End date</th>
-      <th data-key="link">YouTube link</th>
+<Datatable settings={$settings} data={$meetings}>
+  <thead>
+    <th data-key="id">ID</th>
+    <th data-key="name">Name</th>
+    <th data-key="date_started">Start date</th>
+    <th data-key="date_ended">End date</th>
+    <th data-key="link">YouTube link</th>
+    {#if $isAuthenticated}
       <th>Actions</th>
-    </thead>
-    <tbody>
-      {#each $rows as { id, name, date_started, date_ended, link }, i}
-        <tr>
-          <td>
-            {id}
-          </td>
-          <td>
-            {name}
-          </td>
-          <td>
-            {date_started}
-          </td>
-          <td>
-            {date_ended}
-          </td>
-          <td>
-            {link}
-          </td>
+    {/if}
+  </thead>
+  <tbody>
+    {#each $rows as { id, name, date_started, date_ended, link }, i}
+      <tr>
+        <td>
+          {id}
+        </td>
+        <td>
+          {name}
+        </td>
+        <td>
+          {date_started}
+        </td>
+        <td>
+          {date_ended}
+        </td>
+        <td>
+          {link}
+        </td>
+        {#if $isAuthenticated}
           <td>
             <button
               data-type="meetings"
@@ -74,15 +76,13 @@
             >
             <button data-type="meetings" data-id={id} on:click={handleDelete}>Delete</button>
           </td>
-        </tr>
-      {/each}
-    </tbody>
-  </Datatable>
+        {/if}
+      </tr>
+    {/each}
+  </tbody>
+</Datatable>
 
-  <FormModal />
-{:else}
-  <h2>You must be authenticated to access the dashboard</h2>
-{/if}
+<FormModal />
 
 <style>
   td {
