@@ -12,13 +12,15 @@
 
 <header>
   <div>
+    <button on:click={() => goto('/')}>Home</button>
+    <button on:click={() => goto('/meeting')}>Rooms Panel</button>
+    <button on:click={() => goto('/dashboard')}>Dashboard</button>
+
     {#if $isAuthenticated}
       <button on:click={() => logout()}>Logout</button>
     {:else}
       <button on:click={() => login()}>Login</button>
     {/if}
-
-    <button on:click={() => goto('/dashboard')}>Dashboard</button>
   </div>
 </header>
 

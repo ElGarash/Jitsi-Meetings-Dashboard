@@ -48,7 +48,7 @@
         });
 
         api.addEventListener('videoConferenceLeft', () => {
-          goto(window.location.origin + '/outro');
+          goto(window.location.origin + '/meeting/outro');
         });
       }
     };
@@ -99,7 +99,7 @@
       selectingRoom.set(true);
       meetingLabels.set(null);
       api.dispose();
-      goto(window.location.origin);
+      goto(window.location.origin + '/meeting');
     }
   };
 </script>

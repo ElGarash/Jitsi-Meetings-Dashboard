@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Jitsi from '../components/meeting/Jitsi.svelte';
-  import { isAuthenticated, selectingRoom } from '../utils/stores';
+  import Jitsi from '../../components/meeting/Jitsi.svelte';
+  import { isAuthenticated, selectingRoom } from '../../utils/stores';
 </script>
 
 {#if !$selectingRoom && $isAuthenticated}
