@@ -7,14 +7,22 @@
     meetingLabels,
     roomName
   } from '../utils/stores';
-  import { getActiveRooms, postResource } from '../utils/requests';
+  import { postResource } from '../utils/requests';
   import { v4 as uuidv4 } from 'uuid';
   import { goto } from '$app/navigation';
+  import query from '../utils/query';
+
+  let activeMeetingsQuery = `SELECT m.id AS id, m.name AS name, group_concat(l.name) AS labels
+                            FROM meeting m
+                            LEFT JOIN meetings_labels ml ON ml.meeting_id = m.id
+                            LEFT JOIN label l ON ml.label_id = l.id
+                            WHERE m.date_ended is NULL
+                            GROUP BY m.id, m.name`;
 
   let selectMeeting = (activeRoom) => {
     roomName.set(activeRoom.name);
     currentRoomID.set(activeRoom.id);
-    meetingLabels.set(activeRoom.labels.join(', '));
+    meetingLabels.set(activeRoom.labels);
     selectingRoom.set(false);
   };
 
@@ -33,10 +41,10 @@
   };
 </script>
 
-{#if $isAuthenticated && $authToken}
+{#if $isAuthenticated}
   {#if $selectingRoom}
     <div>
-      {#await getActiveRooms($authToken) then activeRooms}
+      {#await query(activeMeetingsQuery) then activeRooms}
         <form on:submit|preventDefault={() => createMeeting()}>
           <input placeholder="Label1, Label2" bind:value={$meetingLabels} />
           <input type="submit" value="Create Room" />
@@ -46,7 +54,7 @@
         {#each activeRooms as activeRoom}
           <div>
             <button on:click={() => selectMeeting(activeRoom)}
-              >{activeRoom.labels.length > 0 ? activeRoom.labels : 'No labels'}</button
+              >{activeRoom.labels > 0 ? activeRoom.labels : 'No labels'}</button
             >
           </div>
         {/each}
